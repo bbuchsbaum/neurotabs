@@ -962,9 +962,15 @@ test_that("nf_compare ratio on NIfTI-backed grouped feature", {
 test_that("nf_mutate_feature on NIfTI-backed feature", {
   fix <- .make_nifti_compute_fixture()
   on.exit(unlink(fix$tmpdir, recursive = TRUE), add = TRUE)
+  old_workers <- getOption("neurotabs.compute.workers")
+  on.exit(options(neurotabs.compute.workers = old_workers), add = TRUE)
+  options(neurotabs.compute.workers = if (.Platform$OS.type == "windows") 1L else 2L)
 
-  result <- nf_mutate_feature(fix$ds, "doubled", "statmap",
-                               .f = function(v) v * 2)
+  expect_warning(
+    result <- nf_mutate_feature(fix$ds, "doubled", "statmap",
+                                .f = function(v) v * 2),
+    NA
+  )
   expect_true("doubled" %in% nf_feature_names(result))
   vol <- nf_resolve(result, 1L, "doubled")
   orig <- nf_resolve(fix$ds, 1L, "statmap")
