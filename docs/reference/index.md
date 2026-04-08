@@ -1,0 +1,91 @@
+# Package index
+
+## All functions
+
+- [`nf_apply()`](nf_apply.md) : Apply a function or fixed operation to a
+  feature row-by-row
+- [`nf_arrange()`](nf_arrange.md) : Arrange (sort) observations
+- [`nf_axes()`](nf_axes.md) : Observation axes
+- [`nf_axis_domain()`](nf_axis_domain.md) : Declare an axis domain
+- [`nf_axis_info()`](nf_axis_info.md) : Axis metadata for a feature axis
+- [`nf_axis_labels()`](nf_axis_labels.md) : Read axis labels for a
+  feature axis
+- [`nf_backends()`](nf_backends.md) : List registered backends
+- [`nf_col()`](nf_col.md) : Create a column reference (ValueSource)
+- [`nf_col_schema()`](nf_col_schema.md) : Declare a scalar column schema
+- [`nf_collect()`](nf_collect.md) : Collect (resolve) a feature for all
+  rows
+- [`nf_collect_array()`](nf_collect_array.md) : Collect a volumetric
+  feature as a stacked array with spatial metadata
+- [`nf_columns_encoding()`](nf_columns_encoding.md) : Create a columns
+  encoding
+- [`nf_compare()`](nf_compare.md) : Compare summarized feature values to
+  a reference group
+- [`nf_compatible()`](nf_compatible.md) : Check strict concatenation
+  compatibility
+- [`nf_concat()`](nf_concat.md) : Concatenate NFTab datasets (strict
+  row-wise)
+- [`nf_design()`](nf_design.md) : Design columns (observation table as
+  data.frame)
+- [`nf_drill()`](nf_drill.md) : Drill from a summary nftab back to
+  contributing member rows
+- [`nf_extension()`](nf_extension.md) : Retrieve one manifest extension
+- [`nf_extensions()`](nf_extensions.md) : Manifest extension entries
+- [`nf_feature()`](nf_feature.md) : Declare a feature schema
+- [`nf_feature_names()`](nf_feature_names.md) : Feature names
+- [`nf_feature_schema()`](nf_feature_schema.md) : Logical schema for a
+  feature
+- [`nf_filter()`](nf_filter.md) : Filter observations by design
+  predicates
+- [`nf_from_table()`](nf_from_table.md) : Create an nftab from a table
+  and external feature files
+- [`nf_group_by()`](nf_group_by.md) : Group observations by design
+  columns
+- [`nf_ingest_parcel_csv()`](nf_ingest_parcel_csv.md) : Ingest a
+  parcel-signal CSV into an nftab
+- [`nf_ingest_parcel_h5()`](nf_ingest_parcel_h5.md) : Ingest a
+  parcellated fmristore HDF5 file into an nftab
+- [`nf_logical_schema()`](nf_logical_schema.md) : Declare a logical
+  feature schema
+- [`nf_manifest()`](nf_manifest.md) : Create an NFTab manifest
+- [`nf_matched_cohort()`](nf_matched_cohort.md) : Build a matched
+  reference cohort by exact column matching
+- [`nf_mutate()`](nf_mutate.md) : Mutate observation columns
+- [`nf_mutate_feature()`](nf_mutate_feature.md) : Mutate a derived
+  feature
+- [`nf_nobs()`](nf_nobs.md) : Number of observations
+- [`nf_read()`](nf_read.md) : Read an NFTab dataset from a manifest file
+- [`nf_ref_encoding()`](nf_ref_encoding.md) : Create a ref encoding
+- [`nf_register_backend()`](nf_register_backend.md) : Register a backend
+  adapter
+- [`nf_resolve()`](nf_resolve.md) : Resolve a single feature value for
+  one row
+- [`nf_resolve_all()`](nf_resolve_all.md) : Resolve all rows for a
+  feature
+- [`nf_sample()`](nf_sample.md) : Sample feature values at spatial
+  coordinates across all observations
+- [`nf_schema_fingerprint()`](nf_schema_fingerprint.md) : Compute a
+  schema fingerprint for compatibility checking
+- [`nf_select()`](nf_select.md) : Select observation columns
+- [`nf_summarize()`](nf_summarize.md)
+  [`nf_summarise()`](nf_summarize.md) : Summarize a feature across rows
+  or groups
+- [`nf_support()`](nf_support.md) : Declare a generic support descriptor
+- [`nf_support_generic()`](nf_support_generic.md) : Declare a generic
+  support descriptor
+- [`nf_support_info()`](nf_support_info.md) : Retrieve one manifest
+  support
+- [`nf_support_parcel()`](nf_support_parcel.md) : Declare a parcel
+  support descriptor
+- [`nf_support_surface()`](nf_support_surface.md) : Declare a surface
+  support descriptor
+- [`nf_support_volume()`](nf_support_volume.md) : Declare a volume
+  support descriptor
+- [`nf_supports()`](nf_supports.md) : Manifest supports
+- [`nf_ungroup()`](nf_ungroup.md) : Drop grouping metadata
+- [`nf_validate()`](nf_validate.md) : Validate an NFTab dataset
+- [`nf_write()`](nf_write.md) : Write an NFTab dataset to disk
+  (table-package profile)
+- [`nftab()`](nftab.md) : Create an NFTab dataset object
+- [`` `[`( ``*`<nftab>`*`)`](sub-.nftab.md) : Subset an nftab by row
+  indices

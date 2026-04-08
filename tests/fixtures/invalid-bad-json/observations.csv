@@ -1,0 +1,2 @@
+row_id,subject,payload,roi_1
+r1,s1,"{not valid json}",0.1

@@ -1,0 +1,347 @@
+---
+title: Understanding the NFTab Specification
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Understanding the NFTab Specification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+params:
+  family: red
+  preset: homage
+css: albers.css
+resource_files:
+- albers.css
+- albers.js
+includes:
+  in_header: |-
+    <script src="albers.js"></script>
+    <script>document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('palette-red');});</script>
+---
+
+```{r setup, include = FALSE}
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(family = params$family, preset = params$preset))
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+pkg_root <- if (file.exists("DESCRIPTION")) {
+  "."
+} else if (file.exists("../DESCRIPTION")) {
+  ".."
+} else {
+  NULL
+}
+if (!is.null(pkg_root) && requireNamespace("pkgload", quietly = TRUE)) {
+  pkgload::load_all(pkg_root, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+} else if (!is.null(pkg_root) && requireNamespace("devtools", quietly = TRUE)) {
+  devtools::load_all(pkg_root, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+} else if (requireNamespace("neurotabs", quietly = TRUE)) {
+  library(neurotabs)
+} else {
+  stop("neurotabs must be installed, or pkgload/devtools must be available for local rendering.")
+}
+```
+
+This vignette is a guided reading of the NFTab specification. The full
+normative text lives in `spec/nftab-spec.md` in the source repository; this
+document explains the same contract in package terms and uses the shipped
+example datasets to make the main ideas concrete.
+
+## What Does The Spec Standardize?
+
+NFTab standardizes a row-oriented neuroimaging dataset with three parts:
+
+- a manifest that defines the logical contract
+- an observation table that stores one row per observation
+- an optional resource registry for externally stored feature data
+
+The examples shipped with `neurotabs` show both the simple and mixed cases.
+
+```{r load-spec-examples}
+roi_path <- system.file("examples/roi-only/nftab.yaml", package = "neurotabs")
+faces_path <- system.file("examples/faces-demo/nftab.yaml", package = "neurotabs")
+stopifnot(nzchar(roi_path), nzchar(faces_path))
+
+roi_raw <- yaml::read_yaml(roi_path)
+faces_raw <- yaml::read_yaml(faces_path)
+
+roi_ds <- nf_read(roi_path)
+faces_ds <- nf_read(faces_path)
+```
+
+```{r abstract-model}
+list(
+  dataset_id = roi_raw$dataset_id,
+  storage_profile = roi_raw$storage_profile,
+  observation_axes = roi_raw$observation_axes,
+  features = names(roi_raw$features)
+)
+```
+
+That output corresponds directly to the abstract data model in the spec: rows
+are observations, features resolve per row, and the manifest defines what those
+resolved values mean independent of physical storage.
+
+## What Does The Manifest Declare?
+
+At the top level, a manifest declares dataset identity, storage profile, row
+identity, observation axes, scalar observation columns, and the feature set.
+
+```{r manifest-top-level}
+roi_raw[c(
+  "spec_version",
+  "dataset_id",
+  "storage_profile",
+  "row_id",
+  "observation_axes"
+)]
+```
+
+The observation table location is part of the manifest too. In the
+`table-package` storage profile, the table is a CSV, TSV, or Parquet file that
+travels with the manifest.
+
+```{r observation-table-ref}
+roi_raw$observation_table
+```
+
+## What Is An Observation Table?
+
+The observation table is the row-oriented part of the dataset. Each row is one
+observation, and scalar design metadata such as subject, group, condition, or
+age live directly in table columns.
+
+```{r observation-table-preview}
+utils::head(
+  roi_ds$observations[c("row_id", "subject", "group", "condition", "age")],
+  4
+)
+```
+
+Each observation column has a declared scalar schema. The spec uses that schema
+to define dtype, nullability, semantic role, levels, and optional units.
+
+```{r scalar-schema}
+roi_raw$observation_columns$age
+```
+
+When `nf_read()` loads the dataset, it coerces table columns to those declared
+types and rejects incompatible values.
+
+## What Is A Feature Schema?
+
+A feature is not just a storage column or file path. In NFTab, a feature has a
+logical schema that defines the kind of value produced when the feature is
+resolved for one row.
+
+```{r logical-schema}
+roi_schema <- nf_feature_schema(roi_ds, "roi_beta")
+roi_schema
+```
+
+For the ROI example, `roi_beta` is a `vector` with one semantic axis called
+`roi`, element dtype `float32`, and logical shape `5`. Resolving one row
+produces that logical value.
+
+```{r logical-value}
+roi_value <- nf_resolve(roi_ds, 1L, "roi_beta")
+stopifnot(length(roi_value) == 5L)
+
+roi_value
+```
+
+This separation between logical schema and physical storage is the center of
+the spec.
+
+## How Do Encodings Work?
+
+The spec allows a feature to have one or more encodings. An encoding says how a
+logical feature value can be materialized for one row.
+
+The ROI example uses a `columns` encoding: the logical vector is stored in an
+ordered bundle of scalar table columns.
+
+```{r columns-encoding}
+roi_raw$features$roi_beta$encodings[[1]]
+```
+
+The mixed `faces-demo` uses a `ref` encoding for a volume feature. Instead of
+putting voxel data in the observation table, each row carries a resource
+identifier and an optional selector.
+
+```{r ref-encoding}
+faces_raw$features$statmap$encodings[[1]]
+```
+
+This is why the spec distinguishes between logical features and storage
+backends. The feature means “a 3D statistical map in MNI space”, while the
+encoding says how to find it for a particular row.
+
+## How Do Axis Domains Carry Atlas Metadata?
+
+Axis domains are where the spec puts semantic metadata for a feature axis. For
+parcel-wise vectors, this is how you encode atlas identity and ROI labels.
+
+```{r axis-domain}
+roi_axis <- nf_axis_info(faces_ds, "roi_beta", "roi")
+roi_labels <- nf_axis_labels(faces_ds, "roi_beta", "roi")
+stopifnot(nrow(roi_labels) == 3L)
+
+roi_axis
+```
+
+```{r axis-labels}
+data.frame(
+  atlas = roi_axis$id,
+  label = roi_labels$label,
+  row.names = NULL
+)
+```
+
+This matches the intended reading of the spec:
+
+- the physical `binding.columns` order defines storage order
+- the `roi` axis defines what those positions mean
+- the axis domain names the atlas and supplies the label table
+
+## How Do Sparse Masked Volumes Fit?
+
+Some datasets do not store a dense 3D volume for each row. Instead, they store
+only the values inside a fixed brain mask. In that case the logical feature is
+better modeled as a vector over a `voxel` axis, together with an extension that
+maps vector positions back to grid coordinates.
+
+```{r masked-volume-extension}
+masked_manifest <- nf_manifest(
+  dataset_id = "masked-demo",
+  row_id = "row_id",
+  observation_axes = c("subject", "condition"),
+  observation_columns = list(
+    row_id = nf_col_schema("string", nullable = FALSE),
+    subject = nf_col_schema("string", nullable = FALSE),
+    condition = nf_col_schema("string", nullable = FALSE),
+    v1 = nf_col_schema("float32"),
+    v2 = nf_col_schema("float32"),
+    v3 = nf_col_schema("float32")
+  ),
+  features = list(
+    statvec = nf_feature(
+      logical = nf_logical_schema(
+        "vector",
+        "voxel",
+        "float32",
+        shape = 3L,
+        space = "MNI152NLin2009cAsym",
+        alignment = "same_grid"
+      ),
+      encodings = list(nf_columns_encoding(c("v1", "v2", "v3")))
+    )
+  ),
+  extensions = list(
+    "x-masked-volume" = list(
+      features = list(
+        statvec = list(
+          grid_axes = c("x", "y", "z"),
+          grid_shape = c(91L, 109L, 91L),
+          grid_index_base = 0L,
+          index_map = list(
+            path = "voxel_index.tsv",
+            format = "tsv"
+          )
+        )
+      )
+    )
+  )
+)
+
+masked_ds <- nftab(
+  masked_manifest,
+  observations = data.frame(
+    row_id = c("r1", "r2"),
+    subject = c("s01", "s02"),
+    condition = c("faces", "houses"),
+    v1 = c(0.1, 0.4),
+    v2 = c(0.2, 0.5),
+    v3 = c(0.3, 0.6),
+    stringsAsFactors = FALSE
+  )
+)
+
+nf_extension(masked_ds, "x-masked-volume")
+```
+
+That extension says the feature is still stored as a vector, but the manifest
+also supplies an external index map telling readers which `(x, y, z)` voxel
+each vector position refers to. This is the common case for masked group maps
+or sparse voxelwise features.
+
+## What Is The Resource Registry For?
+
+A `ref` encoding can point directly to a backend and locator, but many datasets
+use a resource registry so rows can refer to shared resources by `resource_id`.
+
+```{r resource-registry-manifest}
+faces_raw$resources
+```
+
+```{r resource-registry-table}
+faces_ds$resources
+```
+
+The spec requires that registry rows supply the storage metadata needed to
+materialize the referenced resource, such as backend name, locator, and
+optionally checksum.
+
+## What Does Conformance Mean?
+
+The spec distinguishes between structural and full conformance.
+
+- Structural conformance asks whether the manifest, table, and declared schemas
+  form a well-typed NFTab dataset.
+- Full conformance goes further and attempts to resolve every non-missing
+  feature value.
+
+For the ROI-only dataset, both levels pass because the feature values live in
+table columns and require no external backend.
+
+```{r conformance}
+structural <- nf_validate(roi_ds, level = "structural")
+full <- nf_validate(roi_ds, level = "full")
+stopifnot(structural$valid, full$valid)
+
+c(structural = structural$valid, full = full$valid)
+```
+
+For datasets with `ref` encodings, full conformance additionally depends on
+backend support and resource integrity checks such as checksum validation.
+
+## How Does Compatibility Fit In?
+
+The spec also defines when two datasets are compatible enough to concatenate.
+That decision depends on matching observation axes, compatible scalar columns,
+and identical logical feature schemas.
+
+```{r compatibility}
+compat <- nf_compatible(roi_ds, roi_ds)
+stopifnot(compat$compatible)
+
+compat
+```
+
+In other words, NFTab concatenation is schema-driven. It is not just row-binding
+two tables and hoping the feature values still mean the same thing.
+
+## How Should You Read The Full Spec?
+
+The most important sections to understand first are:
+
+1. Abstract data model
+2. Observation table and scalar column schema
+3. Feature schema and logical schema
+4. Encodings and resource registry
+5. Resolution, conformance, and compatibility
+
+If you keep those five layers in mind, the rest of the specification reads as a
+precise contract rather than a collection of disconnected fields.

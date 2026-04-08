@@ -1,0 +1,48 @@
+spec_version: "0.1.0"
+dataset_id: "fixture-valid-roi"
+storage_profile: "table-package"
+
+observation_table:
+  path: "observations.csv"
+  format: "csv"
+
+row_id: "row_id"
+observation_axes: ["subject", "condition"]
+
+observation_columns:
+  row_id:
+    dtype: string
+    nullable: false
+  subject:
+    dtype: string
+    nullable: false
+    semantic_role: subject
+  condition:
+    dtype: string
+    nullable: false
+    semantic_role: condition
+  group:
+    dtype: string
+    nullable: false
+    semantic_role: group
+  roi_1:
+    dtype: float32
+    nullable: false
+  roi_2:
+    dtype: float32
+    nullable: false
+  roi_3:
+    dtype: float32
+    nullable: false
+
+features:
+  roi_beta:
+    logical:
+      kind: vector
+      axes: ["roi"]
+      dtype: float32
+      shape: [3]
+    encodings:
+      - type: columns
+        binding:
+          columns: ["roi_1", "roi_2", "roi_3"]

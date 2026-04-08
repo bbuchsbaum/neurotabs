@@ -1,0 +1,9 @@
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+.covr_result.rds
+.omc/
+.albersdown.bak/
+src/*.o
+src/*.so

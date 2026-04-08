@@ -1,0 +1,575 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neurotabs.org/spec/0.1/nftab-manifest.schema.json",
+  "title": "NFTab Manifest",
+  "description": "Schema for the Neuro Feature Table (NFTab) dataset manifest, version 0.1.",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "dataset_id",
+    "storage_profile",
+    "observation_table",
+    "row_id",
+    "observation_axes",
+    "observation_columns",
+    "features"
+  ],
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the NFTab specification."
+    },
+    "dataset_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the dataset within its package."
+    },
+    "storage_profile": {
+      "type": "string",
+      "enum": ["table-package"],
+      "description": "Serialization profile. Version 0.1 defines only 'table-package'."
+    },
+    "observation_table": {
+      "$ref": "#/$defs/TableRef",
+      "description": "Reference to the observation table file."
+    },
+    "row_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the unique row identifier column in the observation table."
+    },
+    "observation_axes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "Ordered list of columns defining the observation grain."
+    },
+    "observation_columns": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/ScalarColumnSchema" },
+      "description": "Schema for every scalar column in the observation table."
+    },
+    "features": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/FeatureSchema" },
+      "description": "Feature declarations, keyed by feature name."
+    },
+    "supports": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/SupportSchema" },
+      "description": "Exact support descriptors keyed by manifest-local support reference."
+    },
+    "primary_feature": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional default feature name for consumers."
+    },
+    "import_recipe": {
+      "$ref": "#/$defs/ImportRecipe",
+      "description": "Optional ingestion metadata for regex/glob-derived manifests."
+    },
+    "resources": {
+      "$ref": "#/$defs/TableRef",
+      "description": "Optional reference to the resource registry table."
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Optional extension data. Keys MUST begin with 'x-'.",
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+
+  "$defs": {
+    "TableRef": {
+      "type": "object",
+      "required": ["path", "format"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative or absolute path to the table file."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["csv", "tsv", "parquet"],
+          "description": "Table file format."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ScalarColumnSchema": {
+      "type": "object",
+      "required": ["dtype"],
+      "properties": {
+        "dtype": {
+          "type": "string",
+          "enum": [
+            "string", "int32", "int64", "float32", "float64",
+            "bool", "date", "datetime", "json"
+          ]
+        },
+        "nullable": {
+          "type": "boolean",
+          "default": true
+        },
+        "semantic_role": {
+          "type": "string",
+          "description": "Optional semantic role hint."
+        },
+        "levels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed categorical values."
+        },
+        "unit": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "SupportRef": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Manifest-local reference to a support entry in manifest.supports."
+    },
+
+    "SupportSchema": {
+      "oneOf": [
+        { "$ref": "#/$defs/VolumeSupport" },
+        { "$ref": "#/$defs/SurfaceSupport" },
+        { "$ref": "#/$defs/ParcelSupport" },
+        { "$ref": "#/$defs/GenericSupport" }
+      ]
+    },
+
+    "SupportBase": {
+      "type": "object",
+      "required": ["support_type", "support_id"],
+      "properties": {
+        "support_type": {
+          "type": "string",
+          "enum": ["volume", "surface", "parcel", "generic"],
+          "description": "Support topology class."
+        },
+        "support_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable exact identifier of the support object."
+        },
+        "description": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Optional additional support metadata.",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "VolumeSupport": {
+      "allOf": [
+        { "$ref": "#/$defs/SupportBase" },
+        {
+          "type": "object",
+          "properties": {
+            "support_type": { "const": "volume" },
+            "space": {
+              "type": "string",
+              "description": "Named reference space (e.g., MNI152NLin2009cAsym)."
+            },
+            "grid_id": {
+              "type": "string",
+              "description": "Stable identifier for the voxel lattice used for direct voxelwise operations."
+            },
+            "affine_id": {
+              "type": "string",
+              "description": "Optional stable identifier for the affine or transform convention."
+            }
+          },
+          "required": ["support_type", "support_id", "space", "grid_id"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+
+    "SurfaceSupport": {
+      "allOf": [
+        { "$ref": "#/$defs/SupportBase" },
+        {
+          "type": "object",
+          "properties": {
+            "support_type": { "const": "surface" },
+            "template": {
+              "type": "string",
+              "description": "Template identifier for the surface reference."
+            },
+            "mesh_id": {
+              "type": "string",
+              "description": "Stable identifier for the mesh coordinate embedding."
+            },
+            "topology_id": {
+              "type": "string",
+              "description": "Stable identifier for the surface topology basis used for direct vertexwise operations."
+            },
+            "hemisphere": {
+              "type": "string",
+              "enum": ["left", "right", "both", "midline", "unknown"],
+              "description": "Hemisphere identity."
+            }
+          },
+          "required": ["support_type", "support_id", "template", "mesh_id", "topology_id", "hemisphere"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+
+    "ParcelSupport": {
+      "allOf": [
+        { "$ref": "#/$defs/SupportBase" },
+        {
+          "type": "object",
+          "properties": {
+            "support_type": { "const": "parcel" },
+            "space": {
+              "type": "string",
+              "description": "Named reference space (e.g., MNI152NLin2009cAsym)."
+            },
+            "n_parcels": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of parcels in the parcellation."
+            },
+            "parcel_map": {
+              "type": "string",
+              "description": "Relative path to a TSV file with parcel metadata (index, label, n_voxels, centroids)."
+            },
+            "membership_ref": {
+              "type": "string",
+              "description": "Path or locator to the source file containing full voxel-to-parcel membership."
+            }
+          },
+          "required": ["support_type", "support_id", "space", "n_parcels"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+
+    "GenericSupport": {
+      "allOf": [
+        { "$ref": "#/$defs/SupportBase" },
+        {
+          "type": "object",
+          "properties": {
+            "support_type": { "const": "generic" }
+          },
+          "required": ["support_type", "support_id"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+
+    "LogicalFeatureSchema": {
+      "type": "object",
+      "required": ["kind", "axes", "dtype"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["array", "volume", "vector", "matrix", "surface"],
+          "description": "Descriptive feature kind."
+        },
+        "axes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Semantic axis names."
+        },
+        "dtype": {
+          "type": "string",
+          "enum": [
+            "int32", "int64", "float32", "float64",
+            "bool", "uint8", "uint16", "string"
+          ],
+          "description": "Element data type of resolved values."
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "integer", "minimum": 1 },
+          "description": "Expected dimensions. Length MUST equal length of axes."
+        },
+        "axis_domains": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/AxisDomain" },
+          "description": "Axis label metadata, keyed by axis name."
+        },
+        "space": {
+          "type": "string",
+          "description": "Named coordinate space (e.g., MNI152NLin2009cAsym)."
+        },
+        "alignment": {
+          "type": "string",
+          "enum": ["same_grid", "same_space", "same_topology", "loose", "none"],
+          "description": "Operational compatibility guarantee across rows of this feature."
+        },
+        "support_ref": {
+          "$ref": "#/$defs/SupportRef",
+          "description": "Reference to the exact support descriptor in manifest.supports."
+        },
+        "unit": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "volume" } }
+          },
+          "then": {
+            "required": ["support_ref"],
+            "properties": {
+              "alignment": {
+                "not": { "const": "same_topology" }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "const": "surface" } }
+          },
+          "then": {
+            "required": ["support_ref"],
+            "properties": {
+              "alignment": {
+                "not": { "const": "same_grid" }
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+
+    "AxisDomain": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the label set."
+        },
+        "labels": {
+          "type": "string",
+          "description": "Relative path to a label table (TSV)."
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Expected axis length."
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ImportRecipe": {
+      "type": "object",
+      "required": ["mode", "pattern"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["glob", "regex"],
+          "description": "How file paths were discovered for manifest creation."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Path pattern used for file discovery (glob or regex)."
+        },
+        "group_columns": {
+          "type": "array",
+          "description": "Ordered column names produced from named path groups.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "feature_metadata": {
+          "type": "object",
+          "description": "Optional metadata describing the kind/support assignment for created fields.",
+          "additionalProperties": true
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "source_manifest": {
+          "type": "string",
+          "description": "Optional path to a transient or source manifest used during ingestion."
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "ColumnRef": {
+      "type": "object",
+      "required": ["column"],
+      "properties": {
+        "column": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+
+    "StringValueSource": {
+      "description": "A literal string or a reference to an observation table column.",
+      "oneOf": [
+        { "type": "string" },
+        { "$ref": "#/$defs/ColumnRef" }
+      ]
+    },
+
+    "JsonLiteral": {
+      "description": "Any JSON literal value except the reserved column-reference object form.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "null" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/JsonLiteral" }
+        },
+        {
+          "type": "object",
+          "not": { "$ref": "#/$defs/ColumnRef" },
+          "additionalProperties": { "$ref": "#/$defs/JsonLiteral" }
+        }
+      ]
+    },
+
+    "JsonValueSource": {
+      "description": "A JSON literal value or a reference to an observation table column.",
+      "oneOf": [
+        { "$ref": "#/$defs/JsonLiteral" },
+        { "$ref": "#/$defs/ColumnRef" }
+      ]
+    },
+
+    "RefEncoding": {
+      "type": "object",
+      "required": ["type", "binding"],
+      "properties": {
+        "type": { "const": "ref" },
+        "binding": {
+          "type": "object",
+          "properties": {
+            "resource_id": { "$ref": "#/$defs/StringValueSource" },
+            "backend": { "$ref": "#/$defs/StringValueSource" },
+            "locator": { "$ref": "#/$defs/StringValueSource" },
+            "selector": { "$ref": "#/$defs/JsonValueSource" },
+            "checksum": { "$ref": "#/$defs/StringValueSource" }
+          },
+          "anyOf": [
+            { "required": ["resource_id"] },
+            { "required": ["backend", "locator"] }
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ColumnsEncoding": {
+      "type": "object",
+      "required": ["type", "binding"],
+      "properties": {
+        "type": { "const": "columns" },
+        "binding": {
+          "type": "object",
+          "required": ["columns"],
+          "properties": {
+            "columns": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "Ordered list of observation table column names."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "FeatureEncoding": {
+      "oneOf": [
+        { "$ref": "#/$defs/RefEncoding" },
+        { "$ref": "#/$defs/ColumnsEncoding" }
+      ]
+    },
+
+    "FeatureSchema": {
+      "type": "object",
+      "required": ["logical", "encodings"],
+      "properties": {
+        "logical": { "$ref": "#/$defs/LogicalFeatureSchema" },
+        "encodings": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/FeatureEncoding" }
+        },
+        "nullable": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "encodings": {
+                "contains": { "$ref": "#/$defs/ColumnsEncoding" }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "logical": {
+                "properties": {
+                  "axes": {
+                    "minItems": 1,
+                    "maxItems": 1
+                  },
+                  "shape": {
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

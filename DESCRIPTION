@@ -1,0 +1,41 @@
+Package: neurotabs
+Type: Package
+Title: Neuro Feature Tables - Storage-Independent Neuroimaging Datasets
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Brad", "Buchsbaum", email = "brad.buchsbaum@gmail.com",
+           role = c("aut", "cre"))
+    )
+Description: Reference implementation of the NFTab specification for
+    row-oriented neuroimaging datasets. Read, write, validate, and query
+    collections of neuroimaging observations with design metadata and
+    feature values that resolve to logical arrays (volumes, ROI vectors,
+    surfaces) independent of physical storage backend.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: false
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    Rcpp,
+    yaml,
+    jsonlite,
+    data.table,
+    digest
+LinkingTo:
+    Rcpp
+Suggests:
+    testthat (>= 3.0.0),
+    RNifti,
+    neuroim2,
+    jsonvalidate,
+    arrow,
+    knitr,
+    rmarkdown,
+    ggplot2,
+    pkgload,
+    devtools,
+    albersdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Config/Needs/website: albersdown

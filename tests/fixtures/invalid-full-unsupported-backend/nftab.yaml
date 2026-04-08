@@ -1,0 +1,54 @@
+spec_version: "0.1.0"
+dataset_id: "fixture-invalid-full"
+storage_profile: "table-package"
+
+observation_table:
+  path: "observations.csv"
+  format: "csv"
+
+row_id: "row_id"
+observation_axes: ["subject", "condition"]
+
+observation_columns:
+  row_id:
+    dtype: string
+    nullable: false
+  subject:
+    dtype: string
+    nullable: false
+  condition:
+    dtype: string
+    nullable: false
+  stat_res:
+    dtype: string
+    nullable: false
+  stat_sel:
+    dtype: json
+    nullable: false
+
+features:
+  statmap:
+    logical:
+      kind: volume
+      axes: ["x", "y", "z"]
+      dtype: float32
+      support_ref: "fixture_grid"
+      shape: [2, 2, 2]
+    encodings:
+      - type: ref
+        binding:
+          resource_id:
+            column: "stat_res"
+          selector:
+            column: "stat_sel"
+
+resources:
+  path: "resources.csv"
+  format: "csv"
+
+supports:
+  fixture_grid:
+    support_type: volume
+    support_id: "fixture-invalid-full-grid"
+    space: "MNI152NLin2009cAsym"
+    grid_id: "fixture-invalid-full-grid-2x2x2"
