@@ -3,6 +3,8 @@
 
 test_that("full pipeline: construct -> filter -> group -> summarize -> write -> read", {
   skip_if_not_installed("RNifti")
+  old <- options(neurotabs.compute.workers = 1L)
+  on.exit(options(old), add = TRUE)
 
   tmpdir <- tempfile("integration-")
   dir.create(file.path(tmpdir, "maps"), recursive = TRUE)

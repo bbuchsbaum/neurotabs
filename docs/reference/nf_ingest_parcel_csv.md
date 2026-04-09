@@ -1,8 +1,9 @@
 # Ingest a parcel-signal CSV into an nftab
 
 Reads a CSV file where rows are observations and columns are parcel
-signals, and wraps it into an [nftab](nftab.md) using a `columns`
-encoding (data stored inline in the observation table).
+signals, and wraps it into an
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md) using
+a `columns` encoding (data stored inline in the observation table).
 
 ## Usage
 
@@ -38,7 +39,9 @@ nf_ingest_parcel_csv(
 
   Optional path to a TSV (or data.frame) with columns `index`, `label`,
   `n_voxels`, `x_centroid`, `y_centroid`, `z_centroid`. When provided,
-  an [`nf_support_parcel()`](nf_support_parcel.md) is attached.
+  an
+  [`nf_support_parcel()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_support_parcel.md)
+  is attached.
 
 - space:
 
@@ -55,4 +58,5 @@ nf_ingest_parcel_csv(
 
 ## Value
 
-An [nftab](nftab.md) object with a `columns` encoding (data inline).
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object with a `columns` encoding (data inline).

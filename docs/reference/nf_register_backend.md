@@ -40,5 +40,6 @@ nf_register_backend(
 
   Optional function with the same signature as `resolve_fn` but
   returning a native R object (e.g., a `NeuroVol`) rather than a plain
-  array. Used by [`nf_resolve()`](nf_resolve.md) when
-  `as_array = FALSE`.
+  array. Used by
+  [`nf_resolve()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_resolve.md)
+  when `as_array = FALSE`.

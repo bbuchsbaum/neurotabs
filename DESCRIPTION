@@ -12,6 +12,8 @@ Description: Reference implementation of the NFTab specification for
     feature values that resolve to logical arrays (volumes, ROI vectors,
     surfaces) independent of physical storage backend.
 License: MIT + file LICENSE
+URL: https://bbuchsbaum.github.io/neurotabs/, https://github.com/bbuchsbaum/neurotabs
+BugReports: https://github.com/bbuchsbaum/neurotabs/issues
 Encoding: UTF-8
 LazyData: false
 Roxygen: list(markdown = TRUE)
@@ -30,9 +32,11 @@ Suggests:
     neuroim2,
     jsonvalidate,
     arrow,
+    fmristore,
     knitr,
     rmarkdown,
     ggplot2,
+    withr,
     pkgload,
     devtools,
     albersdown

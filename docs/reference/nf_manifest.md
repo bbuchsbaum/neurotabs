@@ -44,11 +44,15 @@ nf_manifest(
 
 - observation_columns:
 
-  Named list of [nf_col_schema](nf_col_schema.md) objects.
+  Named list of
+  [nf_col_schema](https://bbuchsbaum.github.io/neurotabs/reference/nf_col_schema.md)
+  objects.
 
 - features:
 
-  Named list of [nf_feature](nf_feature.md) objects.
+  Named list of
+  [nf_feature](https://bbuchsbaum.github.io/neurotabs/reference/nf_feature.md)
+  objects.
 
 - storage_profile:
 
@@ -73,8 +77,8 @@ nf_manifest(
 - supports:
 
   Optional named list of support descriptors created by
-  [`nf_support()`](nf_support.md), keyed by manifest-local support
-  reference.
+  [`nf_support()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_support.md),
+  keyed by manifest-local support reference.
 
 - primary_feature:
 

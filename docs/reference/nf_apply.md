@@ -16,11 +16,12 @@ nf_apply(x, feature, .f, ..., .progress = FALSE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - feature:
 
-  Feature name.
+  Feature name as a string or unquoted symbol.
 
 - .f:
 
@@ -40,8 +41,8 @@ A named vector or list with one result per row.
 
 ## Parallelism
 
-For NIfTI-backed features with fixed operations, batch reads can be
-parallelized across files using
-`options(neurotabs.compute.workers = 4L)`. This uses
-[`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html) and
-is disabled on Windows. The default is 1 (sequential).
+For NIfTI-backed features, file reads are automatically parallelized
+using [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
+with half the available cores. Set
+`options(neurotabs.compute.workers = 1L)` to force sequential execution,
+or a higher value for more parallelism. Disabled on Windows.

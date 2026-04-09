@@ -71,7 +71,8 @@ nf_from_table(
 
 ## Value
 
-An [nftab](nftab.md) object.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object.
 
 ## Details
 

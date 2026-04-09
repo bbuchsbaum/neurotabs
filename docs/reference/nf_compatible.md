@@ -12,11 +12,13 @@ nf_compatible(a, b)
 
 - a:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - b:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 ## Value
 

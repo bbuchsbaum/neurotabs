@@ -12,7 +12,8 @@ nf_arrange(x, ..., .by = NULL)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - ...:
 
@@ -25,4 +26,5 @@ nf_arrange(x, ..., .by = NULL)
 
 ## Value
 
-A reordered [nftab](nftab.md).
+A reordered
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md).

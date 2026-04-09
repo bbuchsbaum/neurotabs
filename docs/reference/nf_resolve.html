@@ -21,10 +21,12 @@ applicable result."></head><body>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/specification.html">Understanding the NFTab Specification</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/cli.html">Driving neurotabs from the Command Line</a></li>
+    <li><a class="dropdown-item" href="../articles/specification.html">Understanding the NFTab Specification</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/bbuchsbaum/neurotabs/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -34,7 +36,7 @@ applicable result."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Resolve a single feature value for one row</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurotabs/blob/HEAD/R/resolution.R" class="external-link"><code>R/resolution.R</code></a></small>
       <div class="d-none name"><code>nf_resolve.Rd</code></div>
     </div>
 
@@ -61,7 +63,7 @@ applicable result.</p>
 
 
 <dt id="arg-feature">feature<a class="anchor" aria-label="anchor" href="#arg-feature"></a></dt>
-<dd><p>Character name of the feature to resolve.</p></dd>
+<dd><p>Feature name as a string or unquoted symbol.</p></dd>
 
 
 <dt id="arg-as-array">as_array<a class="anchor" aria-label="anchor" href="#arg-as-array"></a></dt>

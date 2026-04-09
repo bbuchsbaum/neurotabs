@@ -22,6 +22,34 @@ contract from the physical storage. An NFTab manifest says what each row
 means, what each feature is, and how a feature value resolves for that
 row.
 
+## Can You Drive It From The Command Line?
+
+Yes. The package exposes a small CLI for the most common read, inspect,
+validate, resolve, collect, and rewrite workflows.
+
+If the package is installed, invoke it with:
+
+``` sh
+Rscript -e 'neurotabs::nf_cli()' -- info path/to/nftab.yaml
+Rscript -e 'neurotabs::nf_cli()' -- validate path/to/nftab.yaml --level full
+Rscript -e 'neurotabs::nf_cli()' -- collect path/to/nftab.yaml roi_beta --out roi_beta.json
+```
+
+From a source checkout, you can also use the bundled wrapper script:
+
+``` sh
+Rscript exec/neurotabs features inst/examples/roi-only/nftab.yaml
+```
+
+The first CLI pass supports:
+
+- `info` for dataset summaries
+- `validate` for structural or full conformance checks
+- `features` for feature schema listings
+- `resolve` for one row and one feature
+- `collect` for all rows of one feature
+- `copy` for normalized read-and-write round trips
+
 ## When Should You Use It?
 
 The package is most useful when your dataset is row-oriented and each
@@ -70,9 +98,10 @@ nf_feature_names(roi_ds)
 
 ## What Happens When You Read A Dataset?
 
-[`nf_read()`](../reference/nf_read.md) does more than parse YAML. It
-validates the manifest against the bundled JSON Schema, reads the
-observation table, and coerces columns to the declared NFTab dtypes.
+[`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md)
+does more than parse YAML. It validates the manifest against the bundled
+JSON Schema, reads the observation table, and coerces columns to the
+declared NFTab dtypes.
 
 ``` r
 vapply(
@@ -85,7 +114,8 @@ vapply(
 ```
 
 That type coercion is part of the package contract. If a manifest says a
-column is `float64` or `date`, [`nf_read()`](../reference/nf_read.md)
+column is `float64` or `date`,
+[`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md)
 normalizes the loaded table to match.
 
 ## How Do You Check Conformance?
@@ -96,10 +126,15 @@ non-missing feature.
 
 ``` r
 structural <- nf_validate(roi_ds, level = "structural")
-stopifnot(structural$valid)
-
-structural$valid
+structural
+#> $valid
 #> [1] TRUE
+#> 
+#> $errors
+#> character(0)
+#> 
+#> $warnings
+#> character(0)
 ```
 
 For the ROI-only example, full conformance is also straightforward
@@ -107,10 +142,15 @@ because every feature value lives directly in observation-table columns.
 
 ``` r
 full <- nf_validate(roi_ds, level = "full")
-stopifnot(full$valid)
-
-full$valid
+full
+#> $valid
 #> [1] TRUE
+#> 
+#> $errors
+#> character(0)
+#> 
+#> $warnings
+#> character(0)
 ```
 
 ## How Do Feature Values Resolve?
@@ -314,8 +354,9 @@ my_ds
 
 ### Step 4: Write to Disk
 
-[`nf_write()`](../reference/nf_write.md) produces a portable NFTab
-directory with a YAML manifest and CSV observation table:
+[`nf_write()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_write.md)
+produces a portable NFTab directory with a YAML manifest and CSV
+observation table:
 
 ``` r
 out_dir <- tempfile("my-study-")
@@ -326,7 +367,7 @@ list.files(out_dir)
 ```
 
 The written dataset can be read back with
-[`nf_read()`](../reference/nf_read.md):
+[`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md):
 
 ``` r
 my_ds2 <- nf_read(file.path(out_dir, "nftab.yaml"))
@@ -340,23 +381,44 @@ nf_resolve(my_ds2, "r1", "roi")
 `nftab` objects. These verbs work with both columns-encoded and
 NIfTI-backed features.
 
-### Filtering Rows
+### A Full Pipeline
 
-[`nf_filter()`](../reference/nf_filter.md) selects observations matching
-a predicate. Observation column names are available directly in the
-expression:
+This is the core workflow the package is trying to make compact:
 
 ``` r
-ctrl_ds <- nf_filter(roi_ds, group == "ctrl")
-nf_nobs(ctrl_ds)
-#> [1] 0
+roi_contrast <- roi_ds |>
+  nf_filter(condition == "faces") |>
+  nf_group_by(group) |>
+  nf_summarize("roi_beta", .f = "mean") |>
+  nf_compare("roi_beta", .ref = "control", .f = "subtract")
+
+roi_contrast
+#> <nftab> roi-only-summary 
+#>   2 observations x 1 features
+#>   axes: group 
+#>   features: roi_beta 
+#>   group: control, patient
+```
+
+### Filtering Rows
+
+[`nf_filter()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_filter.md)
+selects observations matching a predicate. Observation column names are
+available directly in the expression:
+
+``` r
+control_ds <- nf_filter(roi_ds, group == "control")
+nf_nobs(control_ds)
+#> [1] 4
 ```
 
 ### Selecting and Arranging
 
-[`nf_select()`](../reference/nf_select.md) keeps named design columns
-(encoding-required columns are always retained).
-[`nf_arrange()`](../reference/nf_arrange.md) sorts rows:
+[`nf_select()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_select.md)
+keeps named design columns (encoding-required columns are always
+retained).
+[`nf_arrange()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_arrange.md)
+sorts rows:
 
 ``` r
 sorted <- nf_arrange(roi_ds, subject)
@@ -374,9 +436,10 @@ nf_design(sorted)[, c("row_id", "subject", "condition")]
 
 ### Applying Functions Across Rows
 
-[`nf_apply()`](../reference/nf_apply.md) runs a function or fixed
-operation on each row’s feature value. For character operations like
-`"mean"`, `"sum"`, `"sd"`, the package uses optimized batch paths:
+[`nf_apply()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_apply.md)
+runs a function or fixed operation on each row’s feature value. For
+character operations like `"mean"`, `"sum"`, `"sd"`, the package uses
+optimized batch paths:
 
 ``` r
 means <- nf_apply(roi_ds, "roi_beta", "mean")
@@ -387,9 +450,10 @@ means
 
 ### Grouping and Summarizing
 
-[`nf_group_by()`](../reference/nf_group_by.md) +
-[`nf_summarize()`](../reference/nf_summarize.md) computes group-level
-feature summaries. The result is a new `nftab` with one row per group:
+[`nf_group_by()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_group_by.md) +
+[`nf_summarize()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_summarize.md)
+computes group-level feature summaries. The result is a new `nftab` with
+one row per group:
 
 ``` r
 grouped <- nf_group_by(roi_ds, group)
@@ -409,11 +473,54 @@ nf_resolve(summary_ds, 1L, "roi_beta")
 #> [1] 0.2000 0.2875 0.2200 0.1375 0.1650
 ```
 
+### Comparing Groups
+
+[`nf_compare()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_compare.md)
+contrasts summarized feature values against a reference group and
+returns another `nftab`:
+
+``` r
+compared_ds <- nf_compare(summary_ds, "roi_beta", .ref = "control", .f = "subtract")
+compared_ds
+#> <nftab> roi-only-summary 
+#>   2 observations x 1 features
+#>   axes: group 
+#>   features: roi_beta 
+#>   group: control, patient
+```
+
+``` r
+nf_collect(compared_ds, "roi_beta")
+#>     [,1]  [,2]  [,3]   [,4] [,5]
+#> .s1  0.0 0.000 0.000 0.0000 0.00
+#> .s2  0.1 0.085 0.055 0.0725 0.08
+```
+
+### Visualizing The Result
+
+Even for a small ROI feature, the summary object is ready to plot:
+
+``` r
+summary_mat <- nf_collect(summary_ds, "roi_beta")
+plot_df <- data.frame(
+  group = rep(summary_ds$observations$group, each = ncol(summary_mat)),
+  roi = factor(rep(seq_len(ncol(summary_mat)), times = nrow(summary_mat))),
+  mean_beta = as.vector(t(summary_mat))
+)
+
+ggplot2::ggplot(plot_df, ggplot2::aes(roi, mean_beta, fill = group)) +
+  ggplot2::geom_col(position = "dodge") +
+  ggplot2::labs(x = "ROI", y = "Mean beta", fill = "Group")
+```
+
+![](neurotabs_files/figure-html/summary-plot-1.png)
+
 ### Adding Derived Columns
 
-[`nf_mutate()`](../reference/nf_mutate.md) adds new observation columns.
-Inside [`nf_mutate()`](../reference/nf_mutate.md), the helper
-`nf_apply_feature()` derives scalar values from features:
+[`nf_mutate()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_mutate.md)
+adds new observation columns. Inside
+[`nf_mutate()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_mutate.md),
+the helper `nf_apply_feature()` derives scalar values from features:
 
 ``` r
 ds_with_mean <- nf_mutate(roi_ds, roi_mean = nf_apply_feature("roi_beta", "mean"))
@@ -433,23 +540,27 @@ ds_with_mean$observations[, c("row_id", "subject", "roi_mean")]
 
 The full workflow is:
 
-1.  Read a manifest with [`nf_read()`](../reference/nf_read.md).
+1.  Read a manifest with
+    [`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md).
 2.  Check structural or full conformance with
-    [`nf_validate()`](../reference/nf_validate.md).
+    [`nf_validate()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_validate.md).
 3.  Filter, arrange, and select with
-    [`nf_filter()`](../reference/nf_filter.md),
-    [`nf_arrange()`](../reference/nf_arrange.md),
-    [`nf_select()`](../reference/nf_select.md).
-4.  Resolve features with [`nf_resolve()`](../reference/nf_resolve.md)
-    or [`nf_collect()`](../reference/nf_collect.md).
+    [`nf_filter()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_filter.md),
+    [`nf_arrange()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_arrange.md),
+    [`nf_select()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_select.md).
+4.  Resolve features with
+    [`nf_resolve()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_resolve.md)
+    or
+    [`nf_collect()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_collect.md).
 5.  Apply row-wise operations with
-    [`nf_apply()`](../reference/nf_apply.md).
+    [`nf_apply()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_apply.md).
 6.  Group and summarize with
-    [`nf_group_by()`](../reference/nf_group_by.md) +
-    [`nf_summarize()`](../reference/nf_summarize.md).
-7.  Compare groups with [`nf_compare()`](../reference/nf_compare.md).
+    [`nf_group_by()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_group_by.md) +
+    [`nf_summarize()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_summarize.md).
+7.  Compare groups with
+    [`nf_compare()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_compare.md).
 8.  Combine compatible datasets with
-    [`nf_concat()`](../reference/nf_concat.md).
+    [`nf_concat()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_concat.md).
 
 For NIfTI-backed features, set `options(neurotabs.compute.workers = 4L)`
 to enable parallel file reads on multi-core systems.

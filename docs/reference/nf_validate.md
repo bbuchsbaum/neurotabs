@@ -12,7 +12,8 @@ nf_validate(x, level = c("structural", "full"), .progress = FALSE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - level:
 

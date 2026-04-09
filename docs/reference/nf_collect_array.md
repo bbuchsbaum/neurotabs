@@ -14,11 +14,12 @@ nf_collect_array(x, feature, .progress = FALSE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - feature:
 
-  Character name of a volumetric (3D) feature.
+  Feature name as a string or unquoted symbol.
 
 - .progress:
 

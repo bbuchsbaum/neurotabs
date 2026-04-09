@@ -1,10 +1,11 @@
 # Ingest a parcellated fmristore HDF5 file into an nftab
 
-Builds an [nftab](nftab.md) from an `H5ParcellatedScanSummary`,
-`H5ParcellatedScan`, or `H5ParcellatedMultiScan` file. One nftab row is
-created per observation (timepoint / volume), with a ref encoding that
-reads a single row of the `T × K` summary matrix via the
-`"fmristore-parcel"` backend.
+Builds an
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md) from
+an `H5ParcellatedScanSummary`, `H5ParcellatedScan`, or
+`H5ParcellatedMultiScan` file. One nftab row is created per observation
+(timepoint / volume), with a ref encoding that reads a single row of the
+`T × K` summary matrix via the `"fmristore-parcel"` backend.
 
 ## Usage
 
@@ -59,4 +60,5 @@ nf_ingest_parcel_h5(
 
 ## Value
 
-An [nftab](nftab.md) object with ref encodings pointing to `path`.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object with ref encodings pointing to `path`.

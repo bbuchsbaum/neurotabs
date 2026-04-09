@@ -12,7 +12,8 @@ nf_filter(x, ...)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - ...:
 
@@ -22,4 +23,6 @@ nf_filter(x, ...)
 
 ## Value
 
-A filtered [nftab](nftab.md) object.
+A filtered
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object.

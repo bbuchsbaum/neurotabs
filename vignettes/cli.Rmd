@@ -1,0 +1,282 @@
+---
+title: Driving neurotabs from the Command Line
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Driving neurotabs from the Command Line}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+params:
+  family: red
+  preset: homage
+css: albers.css
+resource_files:
+- albers.css
+- albers.js
+includes:
+  in_header: |-
+    <script src="albers.js"></script>
+    <script>document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('palette-red');});</script>
+---
+
+```{r setup, include = FALSE}
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(family = params$family, preset = params$preset))
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+pkg_root <- if (file.exists("DESCRIPTION")) {
+  "."
+} else if (file.exists("../DESCRIPTION")) {
+  ".."
+} else {
+  NULL
+}
+if (!is.null(pkg_root) && requireNamespace("pkgload", quietly = TRUE)) {
+  pkgload::load_all(pkg_root, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+} else if (!is.null(pkg_root) && requireNamespace("devtools", quietly = TRUE)) {
+  devtools::load_all(pkg_root, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+} else if (requireNamespace("neurotabs", quietly = TRUE)) {
+  library(neurotabs)
+} else {
+  stop("neurotabs must be installed, or pkgload/devtools must be available for local rendering.")
+}
+
+rscript_bin <- file.path(R.home("bin"), "Rscript")
+roi_path <- system.file("examples/roi-only/nftab.yaml", package = "neurotabs")
+stopifnot(nzchar(roi_path), file.exists(roi_path))
+cli_script <- if (!is.null(pkg_root)) file.path(pkg_root, "exec", "neurotabs") else NULL
+if (is.null(cli_script) || !file.exists(cli_script)) {
+  stop("expected exec/neurotabs in the source tree for vignette rendering")
+}
+
+run_cli <- function(...) {
+  args <- c(cli_script, ...)
+  out <- system2(rscript_bin, args = args, stdout = TRUE, stderr = TRUE)
+  status <- attr(out, "status")
+  if (is.null(status)) status <- 0L
+  list(status = status, output = out)
+}
+
+strip_rscript_noise <- function(lines) {
+  lines[!grepl("^During startup|^[0-9]+: Setting LC_", lines)]
+}
+
+extract_json <- function(lines, simplifyVector = TRUE) {
+  lines <- strip_rscript_noise(lines)
+  start <- grep("^\\s*(\\{|\\[)", lines)[1L]
+  end <- tail(grep("^\\s*(\\}|\\])\\s*$", lines), 1L)
+  jsonlite::fromJSON(
+    paste(lines[start:end], collapse = "\n"),
+    simplifyVector = simplifyVector
+  )
+}
+```
+
+This vignette shows how to inspect, validate, materialize, and rewrite an
+NFTab dataset from the shell. The goal is not to replace the R API. It is to
+make the package usable in scripts, CI checks, and quick terminal workflows
+where you want a stable command surface over the core `nf_*` functions.
+
+The examples use the packaged ROI-only dataset, so every command is runnable as
+written and every result can be checked in-code.
+
+## What Does The CLI Expose?
+
+The CLI wraps the same read, validate, resolve, collect, and write paths that
+the package exposes in R.
+
+```{r list-cli-commands}
+help_out <- run_cli("help")
+stopifnot(help_out$status == 0L)
+cat(paste(utils::head(strip_rscript_noise(help_out$output), 15), collapse = "\n"))
+```
+
+The commands in this first pass are:
+
+- `info`
+- `validate`
+- `features`
+- `resolve`
+- `collect`
+- `copy`
+
+## How Do You Inspect A Dataset Quickly?
+
+Start with `info`. It reads the manifest, loads the observation table, and
+prints a compact dataset summary.
+
+```{r cli-info-json}
+info_out <- run_cli("info", roi_path, "--json")
+stopifnot(info_out$status == 0L)
+info_payload <- extract_json(info_out$output)
+info_payload
+```
+
+```{r cli-info-checks, include = FALSE}
+stopifnot(
+  identical(info_payload$dataset_id, "roi-only"),
+  identical(info_payload$n_observations, 8L),
+  identical(info_payload$features, "roi_beta"),
+  identical(info_payload$axes, c("subject", "condition"))
+)
+```
+
+That gives you the minimum orientation you need before doing anything heavier:
+which dataset you are reading, how many rows it has, which features it
+declares, and which observation axes define row identity.
+
+## How Do You Check Conformance?
+
+The `validate` command runs the same structural or full conformance checks that
+`nf_validate()` provides in R.
+
+```{r cli-validate-structural}
+validate_out <- run_cli("validate", roi_path, "--level", "structural", "--json")
+stopifnot(validate_out$status == 0L)
+validate_payload <- extract_json(validate_out$output)
+validate_payload
+```
+
+```{r cli-validate-checks, include = FALSE}
+stopifnot(
+  isTRUE(validate_payload$valid),
+  identical(validate_payload$level, "structural"),
+  length(validate_payload$errors) == 0L
+)
+```
+
+If you want the stronger contract, use `--level full`. That attempts to resolve
+every non-missing feature value, so it is the better fit for CI or release
+checks.
+
+```{r cli-validate-full}
+full_out <- run_cli("validate", roi_path, "--level", "full", "--json")
+stopifnot(full_out$status == 0L)
+full_payload <- extract_json(full_out$output)
+full_payload[c("valid", "level", "dataset_id")]
+```
+
+## How Do You Discover The Feature Surface?
+
+Use `features` when you need to know what a dataset can materialize without
+opening the manifest by hand.
+
+```{r cli-features}
+features_out <- run_cli("features", roi_path, "--json")
+stopifnot(features_out$status == 0L)
+features_payload <- extract_json(features_out$output, simplifyVector = FALSE)
+features_payload
+```
+
+```{r cli-features-checks, include = FALSE}
+stopifnot(
+  length(features_payload) == 1L,
+  identical(features_payload[[1]]$name, "roi_beta"),
+  identical(features_payload[[1]]$kind, "vector"),
+  identical(features_payload[[1]]$axes, "roi")
+)
+```
+
+For command-line work, this is the bridge between “there is a manifest here”
+and “I know which feature names are valid arguments to `resolve` or `collect`”.
+
+## How Do You Materialize One Row?
+
+`resolve` is the CLI equivalent of `nf_resolve()`. You supply a feature plus a
+row selector, either by `row_id` or by 1-based row index.
+
+```{r cli-resolve}
+resolve_out <- run_cli("resolve", roi_path, "roi_beta", "--row", "r01")
+stopifnot(resolve_out$status == 0L)
+resolve_payload <- extract_json(resolve_out$output)
+resolve_payload
+```
+
+```{r cli-resolve-checks, include = FALSE}
+stopifnot(
+  identical(resolve_payload$row_id, "r01"),
+  length(resolve_payload$value) == 5L,
+  all(is.finite(resolve_payload$value)),
+  abs(resolve_payload$value[[1]] - 0.31) < 1e-6
+)
+```
+
+This is the right tool when you are debugging one bad row, inspecting a single
+feature binding, or spot-checking data before a larger job.
+
+## How Do You Materialize A Feature Across All Rows?
+
+`collect` resolves one feature across the full dataset. For fixed-size 1D
+features, it can emit a tabular result directly.
+
+```{r cli-collect}
+collect_file <- tempfile(fileext = ".csv")
+collect_status <- run_cli("collect", roi_path, "roi_beta", "--out", collect_file, "--format", "csv")
+stopifnot(collect_status$status == 0L, file.exists(collect_file))
+collect_tbl <- utils::read.csv(collect_file, stringsAsFactors = FALSE)
+collect_tbl
+```
+
+```{r cli-collect-checks, include = FALSE}
+stopifnot(
+  nrow(collect_tbl) == 8L,
+  ncol(collect_tbl) == 6L,
+  identical(collect_tbl$row_id[[1]], "r01"),
+  all(vapply(collect_tbl[-1], is.numeric, logical(1L))),
+  all(is.finite(as.matrix(collect_tbl[-1])))
+)
+```
+
+That output is intentionally simple: one row per observation, one leading
+`row_id` column, and one column per resolved element.
+
+## How Do You Rewrite A Dataset Cleanly?
+
+`copy` is a read-and-write round trip. It is useful when you want to normalize
+an existing dataset layout, rewrite checksums, or stage a portable copy for
+another tool.
+
+```{r cli-copy}
+copy_dir <- tempfile("neurotabs-cli-copy-")
+copy_out <- run_cli("copy", roi_path, copy_dir, "--json")
+stopifnot(copy_out$status == 0L)
+copy_payload <- extract_json(copy_out$output)
+copy_payload
+```
+
+```{r cli-copy-checks, include = FALSE}
+copied_ds <- nf_read(copy_payload$manifest)
+stopifnot(
+  identical(copied_ds$manifest$dataset_id, "roi-only"),
+  identical(nf_nobs(copied_ds), 8L),
+  identical(nf_feature_names(copied_ds), "roi_beta")
+)
+```
+
+Because the command goes through `nf_read()` and `nf_write()`, it follows the
+same manifest parsing, dtype coercion, and checksum-writing rules as the R API.
+
+## When Should You Use The CLI Versus The R API?
+
+Use the CLI when you need:
+
+- a stable shell command in CI or Make targets
+- a fast conformance check before handing data to another tool
+- a quick summary or one-off materialization without writing R code
+
+Use the R API when you need:
+
+- filtering, grouping, and compute verbs
+- integration with downstream analysis code
+- custom control flow around errors, grouping, or feature transformations
+
+The command-line layer is deliberately small. It covers the package’s core
+dataset lifecycle without trying to reproduce the full interactive grammar in
+shell flags.
+
+## What Should You Read Next?
+
+For the end-to-end R workflow, start with `vignette("neurotabs")`. For the
+manifest contract itself, use `vignette("specification")`.

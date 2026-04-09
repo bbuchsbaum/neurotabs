@@ -15,7 +15,8 @@ nf_mutate(x, ...)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - ...:
 
@@ -24,5 +25,5 @@ nf_mutate(x, ...)
 
 ## Value
 
-An [nftab](nftab.md) object with additional or replaced observation
-columns.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object with additional or replaced observation columns.

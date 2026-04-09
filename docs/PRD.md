@@ -512,14 +512,23 @@ Spec + data model + I/O + validation + NIfTI backend.
 Deliverables: - `spec/nftab-spec.md` — complete prose spec -
 `spec/nftab-manifest.schema.json` — JSON Schema - Core R classes:
 `nftab`, `nf_manifest`, `nf_feature`, `nf_logical_schema`,
-`nf_encoding` - [`nf_read()`](reference/nf_read.md) /
-[`nf_write()`](reference/nf_write.md) for table-package profile -
-[`nf_resolve()`](reference/nf_resolve.md) /
-[`nf_resolve_all()`](reference/nf_resolve_all.md) with NIfTI backend -
-[`nf_validate()`](reference/nf_validate.md) at structural and full
-conformance levels - [`nf_concat()`](reference/nf_concat.md) with
-compatibility checking - Basic [`nf_filter()`](reference/nf_filter.md)
-and [`nf_collect()`](reference/nf_collect.md) - Tests and one vignette
+`nf_encoding` -
+[`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md)
+/
+[`nf_write()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_write.md)
+for table-package profile -
+[`nf_resolve()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_resolve.md)
+/
+[`nf_resolve_all()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_resolve_all.md)
+with NIfTI backend -
+[`nf_validate()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_validate.md)
+at structural and full conformance levels -
+[`nf_concat()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_concat.md)
+with compatibility checking - Basic
+[`nf_filter()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_filter.md)
+and
+[`nf_collect()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_collect.md) -
+Tests and one vignette
 
 Exit criteria: can round-trip a faces-demo dataset, resolve NIfTI
 volumes and CSV-column ROI vectors, validate conformance, concatenate
@@ -529,15 +538,16 @@ two compatible datasets.
 
 Full dplyr-style verbs.
 
-Deliverables: - [`nf_group_by()`](reference/nf_group_by.md),
-[`nf_summarise()`](reference/nf_summarize.md),
-[`nf_compare()`](reference/nf_compare.md),
-[`nf_mutate()`](reference/nf_mutate.md),
-[`nf_arrange()`](reference/nf_arrange.md),
-[`nf_drill()`](reference/nf_drill.md) -
-[`nf_matched_cohort()`](reference/nf_matched_cohort.md) for dynamic
-reference groups - Reducer functions: mean, variance, median,
-prevalence, sign consistency - Derived feature caching - Grammar
+Deliverables: -
+[`nf_group_by()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_group_by.md),
+[`nf_summarise()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_summarize.md),
+[`nf_compare()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_compare.md),
+[`nf_mutate()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_mutate.md),
+[`nf_arrange()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_arrange.md),
+[`nf_drill()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_drill.md) -
+[`nf_matched_cohort()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_matched_cohort.md)
+for dynamic reference groups - Reducer functions: mean, variance,
+median, prevalence, sign consistency - Derived feature caching - Grammar
 vignette
 
 Exit criteria: can express `select → group → reduce → compare → drill`
@@ -608,16 +618,17 @@ language with a JSON Schema library.
     Using `nf_` for now to avoid dplyr conflicts.
 
 2.  **Grouped summaries that produce volumes**: When
-    [`nf_summarise()`](reference/nf_summarize.md) computes a mean volume
-    per group, the result is a new nftab where each row is a group and
-    the feature is a derived volume. Should derived volumes be
-    materialized to disk or held in memory? (Answer: tiered — small
-    results in memory, large results cached to temp files.)
+    [`nf_summarise()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_summarize.md)
+    computes a mean volume per group, the result is a new nftab where
+    each row is a group and the feature is a derived volume. Should
+    derived volumes be materialized to disk or held in memory? (Answer:
+    tiered — small results in memory, large results cached to temp
+    files.)
 
 3.  **Column-name stability**: Should
-    [`nf_filter()`](reference/nf_filter.md) use tidy evaluation (NSE) or
-    explicit column references? (Leaning toward tidy eval for
-    ergonomics, with a `.data` pronoun for safety.)
+    [`nf_filter()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_filter.md)
+    use tidy evaluation (NSE) or explicit column references? (Leaning
+    toward tidy eval for ergonomics, with a `.data` pronoun for safety.)
 
 4.  **Parquet as primary?**: CSV is the simplest on-ramp, but Parquet
     handles typed columns and nested arrays better. Should Phase 1

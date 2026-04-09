@@ -13,7 +13,8 @@ nf_select(x, ..., .cols = NULL)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - ...:
 
@@ -26,4 +27,5 @@ nf_select(x, ..., .cols = NULL)
 
 ## Value
 
-An [nftab](nftab.md) with fewer observation columns.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+with fewer observation columns.

@@ -12,7 +12,8 @@ nf_concat(..., provenance_col = "source_dataset")
 
 - ...:
 
-  [nftab](nftab.md) objects to concatenate.
+  [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  objects to concatenate.
 
 - provenance_col:
 
@@ -21,4 +22,5 @@ nf_concat(..., provenance_col = "source_dataset")
 
 ## Value
 
-A new [nftab](nftab.md) object with rows from all inputs.
+A new [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object with rows from all inputs.

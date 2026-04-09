@@ -13,7 +13,9 @@ nf_schema_fingerprint(x, support_id = NULL)
 
 - x:
 
-  An [nf_logical_schema](nf_logical_schema.md) object.
+  An
+  [nf_logical_schema](https://bbuchsbaum.github.io/neurotabs/reference/nf_logical_schema.md)
+  object.
 
 - support_id:
 

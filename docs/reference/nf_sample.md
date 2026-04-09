@@ -22,11 +22,12 @@ nf_sample(
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - feature:
 
-  Character name of a volumetric feature.
+  Feature name as a string or unquoted symbol.
 
 - coords:
 

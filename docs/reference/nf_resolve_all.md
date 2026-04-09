@@ -12,11 +12,12 @@ nf_resolve_all(x, feature, .progress = FALSE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - feature:
 
-  Character name of the feature.
+  Feature name as a string or unquoted symbol.
 
 - .progress:
 

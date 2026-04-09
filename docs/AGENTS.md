@@ -97,8 +97,8 @@ All layers are defined in `R/`. C++ helpers live in `src/`.
 ## Compute layer expectations
 
 - Keep the fast paths fast. For `columns` features, avoid row-by-row
-  [`nf_resolve()`](reference/nf_resolve.md) when a direct matrix path is
-  possible.
+  [`nf_resolve()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_resolve.md)
+  when a direct matrix path is possible.
 - For NIfTI-backed compute, preserve batching by file, cached slice
   extraction, and checksum validation once per unique locator.
 - Nullable derived features are part of the contract. If a transform can

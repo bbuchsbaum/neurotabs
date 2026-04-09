@@ -16,4 +16,6 @@ nf_ungroup(x)
 
 ## Value
 
-The underlying [nftab](nftab.md) object.
+The underlying
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object.

@@ -8,6 +8,15 @@
 \description{
 Reference implementation of the NFTab specification for row-oriented neuroimaging datasets. Read, write, validate, and query collections of neuroimaging observations with design metadata and feature values that resolve to logical arrays (volumes, ROI vectors, surfaces) independent of physical storage backend.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://bbuchsbaum.github.io/neurotabs/}
+  \item \url{https://github.com/bbuchsbaum/neurotabs}
+  \item Report bugs at \url{https://github.com/bbuchsbaum/neurotabs/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Brad Buchsbaum \email{brad.buchsbaum@gmail.com}
 

@@ -12,11 +12,12 @@ nf_collect(x, feature, simplify = TRUE, .progress = FALSE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - feature:
 
-  Character name of the feature.
+  Feature name as a string or unquoted symbol.
 
 - simplify:
 

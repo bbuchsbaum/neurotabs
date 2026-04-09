@@ -19,24 +19,33 @@ nf_ref_encoding(
 
 - backend:
 
-  Backend identifier or [nf_col](nf_col.md) reference.
+  Backend identifier or
+  [nf_col](https://bbuchsbaum.github.io/neurotabs/reference/nf_col.md)
+  reference.
 
 - locator:
 
-  Path/URI or [nf_col](nf_col.md) reference.
+  Path/URI or
+  [nf_col](https://bbuchsbaum.github.io/neurotabs/reference/nf_col.md)
+  reference.
 
 - selector:
 
-  Optional selector (literal or [nf_col](nf_col.md) reference).
+  Optional selector (literal or
+  [nf_col](https://bbuchsbaum.github.io/neurotabs/reference/nf_col.md)
+  reference).
 
 - resource_id:
 
-  Optional resource registry ID (literal or [nf_col](nf_col.md)
+  Optional resource registry ID (literal or
+  [nf_col](https://bbuchsbaum.github.io/neurotabs/reference/nf_col.md)
   reference).
 
 - checksum:
 
-  Optional checksum (literal or [nf_col](nf_col.md) reference).
+  Optional checksum (literal or
+  [nf_col](https://bbuchsbaum.github.io/neurotabs/reference/nf_col.md)
+  reference).
 
 ## Value
 

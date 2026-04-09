@@ -3,7 +3,12 @@
 .Ruserdata
 .DS_Store
 .covr_result.rds
+.rcmdcheck_result.rds
+.rcmdcheck_result_nosuggests.rds
 .omc/
+.playwright-mcp/
 .albersdown.bak/
 src/*.o
 src/*.so
+/doc/
+/Meta/

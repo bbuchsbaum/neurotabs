@@ -1,5 +1,8 @@
 ^\.covr_result\.rds$
+^\.rcmdcheck_result.*\.rds$
 ^\.omc$
+^\.playwright-mcp$
+^EXPLORATORY_ANALYSIS_V1\.md$
 ^IMPLEMENTATION_PLAN\.md$
 ^PRD\.md$
 ^spec$
@@ -16,3 +19,5 @@
 ^inst/examples/AGENTS\.md$
 ^inst/schema/AGENTS\.md$
 ^vignettes/AGENTS\.md$
+^doc$
+^Meta$

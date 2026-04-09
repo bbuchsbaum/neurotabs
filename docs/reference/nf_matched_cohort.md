@@ -2,7 +2,7 @@
 
 Returns the subset of `x` where observation columns exactly match the
 provided values. Intended for use as the `.ref` argument in
-[nf_compare](nf_compare.md).
+[nf_compare](https://bbuchsbaum.github.io/neurotabs/reference/nf_compare.md).
 
 ## Usage
 
@@ -14,7 +14,8 @@ nf_matched_cohort(x, match_on)
 
 - x:
 
-  An [nftab](nftab.md) object providing the reference pool.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object providing the reference pool.
 
 - match_on:
 
@@ -22,4 +23,5 @@ nf_matched_cohort(x, match_on)
 
 ## Value
 
-An [nftab](nftab.md) containing only the matching observations.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+containing only the matching observations.

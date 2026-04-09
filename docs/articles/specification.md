@@ -5,6 +5,13 @@ normative text lives in `spec/nftab-spec.md` in the source repository;
 this document explains the same contract in package terms and uses the
 shipped example datasets to make the main ideas concrete.
 
+If you want the end-to-end analysis workflow first, start with
+[`vignette("neurotabs")`](https://bbuchsbaum.github.io/neurotabs/articles/neurotabs.md).
+This article assumes you already know how to read and query a dataset
+and focuses instead on what the manifest contract means, how logical
+features stay separate from storage, and why compatibility is
+schema-driven.
+
 ## What Does The Spec Standardize?
 
 NFTab standardizes a row-oriented neuroimaging dataset with three parts:
@@ -14,7 +21,9 @@ NFTab standardizes a row-oriented neuroimaging dataset with three parts:
 - an optional resource registry for externally stored feature data
 
 The examples shipped with `neurotabs` show both the simple and mixed
-cases.
+cases. In this vignette, the goal is not to repeat the grammar verbs. It
+is to compare raw manifest fragments with the parsed dataset objects and
+inspect the contract they enforce.
 
 ``` r
 roi_path <- system.file("examples/roi-only/nftab.yaml", package = "neurotabs")
@@ -132,9 +141,12 @@ roi_raw$observation_columns$age
 #> [1] "years"
 ```
 
-When [`nf_read()`](../reference/nf_read.md) loads the dataset, it
-coerces table columns to those declared types and rejects incompatible
-values.
+When
+[`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md)
+loads the dataset, it coerces table columns to those declared types and
+rejects incompatible values. The getting-started vignette shows how you
+work with those columns interactively; here the important point is that
+the schema is part of the portable contract.
 
 ## What Is A Feature Schema?
 
@@ -162,7 +174,9 @@ roi_value
 ```
 
 This separation between logical schema and physical storage is the
-center of the spec.
+center of the spec. It is what lets two datasets remain compatible even
+when they use different physical layouts, as long as the resolved
+feature contract is the same.
 
 ## How Do Encodings Work?
 
@@ -372,31 +386,65 @@ structural <- nf_validate(roi_ds, level = "structural")
 full <- nf_validate(roi_ds, level = "full")
 stopifnot(structural$valid, full$valid)
 
-c(structural = structural$valid, full = full$valid)
-#> structural       full 
-#>       TRUE       TRUE
+data.frame(
+  level = c("structural", "full"),
+  valid = c(structural$valid, full$valid),
+  row.names = NULL
+)
+#>        level valid
+#> 1 structural  TRUE
+#> 2       full  TRUE
 ```
 
 For datasets with `ref` encodings, full conformance additionally depends
 on backend support and resource integrity checks such as checksum
 validation.
 
-## How Does Compatibility Fit In?
+## How Does Schema-Driven Compatibility Work?
 
 The spec also defines when two datasets are compatible enough to
 concatenate. That decision depends on matching observation axes,
 compatible scalar columns, and identical logical feature schemas.
 
 ``` r
-compat <- nf_compatible(roi_ds, roi_ds)
-stopifnot(compat$compatible)
+compat_roi <- nf_compatible(roi_ds, roi_ds)
+compat_faces <- nf_compatible(faces_ds, faces_ds)
+compat_cross <- nf_compatible(roi_ds, faces_ds)
 
-compat
-#> $compatible
-#> [1] TRUE
-#> 
-#> $reasons
-#> character(0)
+compat_df <- data.frame(
+  comparison = c("ROI vs ROI", "Faces vs Faces", "ROI vs Faces"),
+  compatible = c(
+    compat_roi$compatible,
+    compat_faces$compatible,
+    compat_cross$compatible
+  ),
+  mismatches = c(
+    length(compat_roi$reasons),
+    length(compat_faces$reasons),
+    length(compat_cross$reasons)
+  ),
+  row.names = NULL
+)
+
+compat_df
+#>       comparison compatible mismatches
+#> 1     ROI vs ROI       TRUE          0
+#> 2 Faces vs Faces       TRUE          0
+#> 3   ROI vs Faces      FALSE          3
+```
+
+![](specification_files/figure-html/compatibility-plot-1.png)
+
+The compatible pairs pass because their observation axes, scalar
+schemas, and logical feature contracts line up exactly. The mixed pair
+fails for schema reasons, not because the files happen to live in
+different places.
+
+``` r
+compat_cross$reasons
+#> [1] "observation_axes differ: [subject,condition] vs [subject,condition,run]"
+#> [2] "feature name sets differ: {roi_beta} vs {roi_beta,statmap}"             
+#> [3] "feature 'roi_beta': logical schema mismatch"
 ```
 
 In other words, NFTab concatenation is schema-driven. It is not just

@@ -24,15 +24,16 @@ nf_mutate_feature(
 
 - x:
 
-  An [nftab](nftab.md) object or `grouped_nftab`.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object or `grouped_nftab`.
 
 - name:
 
-  Name of the derived feature to create.
+  Name of the derived feature to create, as a string or unquoted symbol.
 
 - feature:
 
-  Source feature name.
+  Source feature name as a string or unquoted symbol.
 
 - .f:
 
@@ -44,9 +45,10 @@ nf_mutate_feature(
 
 - logical:
 
-  Optional [nf_logical_schema](nf_logical_schema.md) describing the
-  derived feature. If omitted, the source logical schema is reused and
-  outputs must conform to it.
+  Optional
+  [nf_logical_schema](https://bbuchsbaum.github.io/neurotabs/reference/nf_logical_schema.md)
+  describing the derived feature. If omitted, the source logical schema
+  is reused and outputs must conform to it.
 
 - storage:
 
@@ -65,8 +67,9 @@ nf_mutate_feature(
 
 ## Value
 
-An updated [nftab](nftab.md) object, or `grouped_nftab` when input is
-grouped.
+An updated
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+object, or `grouped_nftab` when input is grouped.
 
 ## Details
 

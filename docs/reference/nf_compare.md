@@ -2,8 +2,10 @@
 
 If `x` is a `grouped_nftab`, `nf_compare()` first summarizes `feature`
 within each group using `.reduce`, then compares every group to the
-reference group `.ref`. If `x` is already a summarized `data.frame`, it
-must contain a list-column named `feature`.
+reference group `.ref`. If `x` is already a summary
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md), the
+comparison is applied directly to its feature values. If `x` is a
+summarized `data.frame`, it must contain a list-column named `feature`.
 
 ## Usage
 
@@ -15,11 +17,13 @@ nf_compare(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = "mean")
 
 - x:
 
-  A `grouped_nftab` or summarized `data.frame`.
+  A `grouped_nftab`, summary
+  [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md), or
+  summarized `data.frame`.
 
 - feature:
 
-  Feature name / list-column name.
+  Feature name / list-column name as a string or unquoted symbol.
 
 - .ref:
 
@@ -36,5 +40,7 @@ nf_compare(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = "mean")
 
 ## Value
 
-A `data.frame` with the same grouping columns and a compared list-column
-named after `feature`.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+when `x` is a `grouped_nftab` or
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md). A
+summarized `data.frame` when `x` is already a summarized `data.frame`.

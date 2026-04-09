@@ -2,8 +2,9 @@
 
 Returns the original observations that contributed to one or more
 summary rows. The summary must have been produced by
-[nf_summarize](nf_summarize.md), which stores contributing row IDs in a
-`.members` list-column as JSON arrays.
+[nf_summarize](https://bbuchsbaum.github.io/neurotabs/reference/nf_summarize.md),
+which stores contributing row IDs in a `.members` list-column as JSON
+arrays.
 
 ## Usage
 
@@ -15,11 +16,15 @@ nf_drill(summary, source, row_index = NULL)
 
 - summary:
 
-  A summarized [nftab](nftab.md) with a `.members` observation column.
+  A summarized
+  [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  with a `.members` observation column.
 
 - source:
 
-  The original [nftab](nftab.md) that was summarized.
+  The original
+  [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  that was summarized.
 
 - row_index:
 
@@ -28,4 +33,5 @@ nf_drill(summary, source, row_index = NULL)
 
 ## Value
 
-An [nftab](nftab.md) containing the contributing rows from `source`.
+An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+containing the contributing rows from `source`.

@@ -1,0 +1,31 @@
+#!/usr/bin/env Rscript
+
+args <- commandArgs(trailingOnly = TRUE)
+
+load_cli <- function() {
+  script_arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
+  if (length(script_arg)) {
+    script_path <- normalizePath(sub("^--file=", "", script_arg[[1L]]), mustWork = FALSE)
+    pkg_root <- normalizePath(file.path(dirname(script_path), ".."), mustWork = FALSE)
+    if (file.exists(file.path(pkg_root, "DESCRIPTION")) &&
+        requireNamespace("pkgload", quietly = TRUE)) {
+      pkgload::load_all(pkg_root, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+      return(get("nf_cli", envir = asNamespace("neurotabs")))
+    }
+  }
+
+  getExportedValue("neurotabs", "nf_cli")
+}
+
+status <- tryCatch(
+  {
+    cli <- load_cli()
+    cli(args)
+  },
+  error = function(e) {
+    message("neurotabs: ", conditionMessage(e))
+    2L
+  }
+)
+
+quit(save = "no", status = as.integer(status))

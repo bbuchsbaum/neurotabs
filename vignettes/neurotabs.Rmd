@@ -64,6 +64,34 @@ That works until you need to answer questions like:
 from the physical storage. An NFTab manifest says what each row means, what
 each feature is, and how a feature value resolves for that row.
 
+## Can You Drive It From The Command Line?
+
+Yes. The package exposes a small CLI for the most common read, inspect,
+validate, resolve, collect, and rewrite workflows.
+
+If the package is installed, invoke it with:
+
+```sh
+Rscript -e 'neurotabs::nf_cli()' -- info path/to/nftab.yaml
+Rscript -e 'neurotabs::nf_cli()' -- validate path/to/nftab.yaml --level full
+Rscript -e 'neurotabs::nf_cli()' -- collect path/to/nftab.yaml roi_beta --out roi_beta.json
+```
+
+From a source checkout, you can also use the bundled wrapper script:
+
+```sh
+Rscript exec/neurotabs features inst/examples/roi-only/nftab.yaml
+```
+
+The first CLI pass supports:
+
+- `info` for dataset summaries
+- `validate` for structural or full conformance checks
+- `features` for feature schema listings
+- `resolve` for one row and one feature
+- `collect` for all rows of one feature
+- `copy` for normalized read-and-write round trips
+
 ## When Should You Use It?
 
 The package is most useful when your dataset is row-oriented and each row has
@@ -124,9 +152,7 @@ Full conformance goes further and tries to resolve every non-missing feature.
 
 ```{r validate-roi-example}
 structural <- nf_validate(roi_ds, level = "structural")
-stopifnot(structural$valid)
-
-structural$valid
+structural
 ```
 
 For the ROI-only example, full conformance is also straightforward because every
@@ -134,9 +160,7 @@ feature value lives directly in observation-table columns.
 
 ```{r validate-roi-full}
 full <- nf_validate(roi_ds, level = "full")
-stopifnot(full$valid)
-
-full$valid
+full
 ```
 
 ## How Do Feature Values Resolve?
@@ -397,14 +421,28 @@ nf_resolve(my_ds2, "r1", "roi")
 `neurotabs` provides dplyr-style grammar verbs that operate directly on `nftab`
 objects. These verbs work with both columns-encoded and NIfTI-backed features.
 
+### A Full Pipeline
+
+This is the core workflow the package is trying to make compact:
+
+```{r pipeline-hero}
+roi_contrast <- roi_ds |>
+  nf_filter(condition == "faces") |>
+  nf_group_by(group) |>
+  nf_summarize("roi_beta", .f = "mean") |>
+  nf_compare("roi_beta", .ref = "control", .f = "subtract")
+
+roi_contrast
+```
+
 ### Filtering Rows
 
 `nf_filter()` selects observations matching a predicate. Observation column
 names are available directly in the expression:
 
 ```{r filter-example}
-ctrl_ds <- nf_filter(roi_ds, group == "ctrl")
-nf_nobs(ctrl_ds)
+control_ds <- nf_filter(roi_ds, group == "control")
+nf_nobs(control_ds)
 ```
 
 ### Selecting and Arranging
@@ -443,6 +481,37 @@ You can resolve the summarized feature to see the group-level average:
 
 ```{r resolve-summary}
 nf_resolve(summary_ds, 1L, "roi_beta")
+```
+
+### Comparing Groups
+
+`nf_compare()` contrasts summarized feature values against a reference group and
+returns another `nftab`:
+
+```{r compare-groups}
+compared_ds <- nf_compare(summary_ds, "roi_beta", .ref = "control", .f = "subtract")
+compared_ds
+```
+
+```{r compare-values}
+nf_collect(compared_ds, "roi_beta")
+```
+
+### Visualizing The Result
+
+Even for a small ROI feature, the summary object is ready to plot:
+
+```{r summary-plot, fig.width = 6, fig.height = 4}
+summary_mat <- nf_collect(summary_ds, "roi_beta")
+plot_df <- data.frame(
+  group = rep(summary_ds$observations$group, each = ncol(summary_mat)),
+  roi = factor(rep(seq_len(ncol(summary_mat)), times = nrow(summary_mat))),
+  mean_beta = as.vector(t(summary_mat))
+)
+
+ggplot2::ggplot(plot_df, ggplot2::aes(roi, mean_beta, fill = group)) +
+  ggplot2::geom_col(position = "dodge") +
+  ggplot2::labs(x = "ROI", y = "Mean beta", fill = "Group")
 ```
 
 ### Adding Derived Columns

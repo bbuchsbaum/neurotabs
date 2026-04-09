@@ -13,7 +13,9 @@ nftab(manifest, observations, resources = NULL, .root = NULL)
 
 - manifest:
 
-  An [nf_manifest](nf_manifest.md) object.
+  An
+  [nf_manifest](https://bbuchsbaum.github.io/neurotabs/reference/nf_manifest.md)
+  object.
 
 - observations:
 

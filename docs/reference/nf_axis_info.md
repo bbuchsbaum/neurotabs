@@ -16,7 +16,7 @@ nf_axis_info(x, feature, axis)
 
 - feature:
 
-  Feature name.
+  Feature name as a string or unquoted symbol.
 
 - axis:
 

@@ -1,9 +1,10 @@
 # Summarize a feature across rows or groups
 
-For character `.f` values in `c("mean", "sum")`, `neurotabs` performs an
-elementwise reduction over resolved feature values and will batch NIfTI
-reads when possible. For a function `.f`, each group receives the list
-of resolved values for that feature.
+For character `.f` values in `c("mean", "sum", "var", "sd", "se")`,
+`neurotabs` performs an elementwise reduction over resolved feature
+values and will batch NIfTI reads when possible. `"se"` computes the
+standard error of the mean (`sd / sqrt(n)`). For a function `.f`, each
+group receives the list of resolved values for that feature.
 
 ## Usage
 
@@ -17,11 +18,12 @@ nf_summarise(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - feature:
 
-  Feature name.
+  Feature name as a string or unquoted symbol.
 
 - by:
 
@@ -29,7 +31,8 @@ nf_summarise(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE)
 
 - .f:
 
-  Either a function or a fixed reducer name.
+  Either a function or a fixed reducer name (`"mean"`, `"sum"`, `"var"`,
+  `"sd"`, `"se"`).
 
 - ...:
 
@@ -41,5 +44,6 @@ nf_summarise(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE)
 
 ## Value
 
-If `by = NULL`, a single reduced value. Otherwise a `data.frame` with
-grouping columns and a list-column named after `feature`.
+If `by = NULL`, a single reduced value. Otherwise an
+[nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md) with
+one row per group and a summarized feature named `feature`.

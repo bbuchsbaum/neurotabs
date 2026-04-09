@@ -35,7 +35,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/specification.html">Understanding the NFTab Specification</a></li>
+<li><a class="dropdown-item" href="../articles/cli.html">Driving neurotabs from the Command Line</a></li>
+    <li><a class="dropdown-item" href="../articles/specification.html">Understanding the NFTab Specification</a></li>
   </ul>
 </li>
       </ul>
@@ -43,6 +44,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/bbuchsbaum/neurotabs/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -59,7 +61,7 @@
       <h1>Getting Started with neurotabs</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurotabs/blob/HEAD/vignettes/neurotabs.Rmd" class="external-link"><code>vignettes/neurotabs.Rmd</code></a></small>
       <div class="d-none name"><code>neurotabs.Rmd</code></div>
     </div>
 
@@ -90,6 +92,34 @@ says what each row means, what each feature is, and how a feature value
 resolves for that row.</p>
 </div>
 <div class="section level2">
+<h2 id="can-you-drive-it-from-the-command-line">Can You Drive It From The Command Line?<a class="anchor" aria-label="anchor" href="#can-you-drive-it-from-the-command-line"></a>
+</h2>
+<p>Yes. The package exposes a small CLI for the most common read,
+inspect, validate, resolve, collect, and rewrite workflows.</p>
+<p>If the package is installed, invoke it with:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'neurotabs::nf_cli()'</span> <span class="at">--</span> info path/to/nftab.yaml</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'neurotabs::nf_cli()'</span> <span class="at">--</span> validate path/to/nftab.yaml <span class="at">--level</span> full</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'neurotabs::nf_cli()'</span> <span class="at">--</span> collect path/to/nftab.yaml roi_beta <span class="at">--out</span> roi_beta.json</span></code></pre></div>
+<p>From a source checkout, you can also use the bundled wrapper
+script:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">Rscript</span> exec/neurotabs features inst/examples/roi-only/nftab.yaml</span></code></pre></div>
+<p>The first CLI pass supports:</p>
+<ul>
+<li>
+<code>info</code> for dataset summaries</li>
+<li>
+<code>validate</code> for structural or full conformance checks</li>
+<li>
+<code>features</code> for feature schema listings</li>
+<li>
+<code>resolve</code> for one row and one feature</li>
+<li>
+<code>collect</code> for all rows of one feature</li>
+<li>
+<code>copy</code> for normalized read-and-write round trips</li>
+</ul>
+</div>
+<div class="section level2">
 <h2 id="when-should-you-use-it">When Should You Use It?<a class="anchor" aria-label="anchor" href="#when-should-you-use-it"></a>
 </h2>
 <p>The package is most useful when your dataset is row-oriented and each
@@ -111,7 +141,7 @@ layouts.</li>
 </h2>
 <p>The package ships with a small ROI-only example that uses
 <code>columns</code> encoding.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">roi_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"examples/roi-only/nftab.yaml"</span>, package <span class="op">=</span> <span class="st">"neurotabs"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">roi_path</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -126,7 +156,7 @@ layouts.</li>
 <p>An <code>nftab</code> object keeps the parsed manifest, the
 observation table, and any optional resource registry together. The
 manifest defines the observation axes and the feature schemas:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/nf_axes.html">nf_axes</a></span><span class="op">(</span><span class="va">roi_ds</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "subject"   "condition"</span></span>
 <span><span class="fu"><a href="../reference/nf_feature_names.html">nf_feature_names</a></span><span class="op">(</span><span class="va">roi_ds</span><span class="op">)</span></span>
@@ -138,7 +168,7 @@ manifest defines the observation axes and the feature schemas:</p>
 <p><code><a href="../reference/nf_read.html">nf_read()</a></code> does more than parse YAML. It validates the
 manifest against the bundled JSON Schema, reads the observation table,
 and coerces columns to the declared NFTab dtypes.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span></span>
 <span>  <span class="va">roi_ds</span><span class="op">$</span><span class="va">observations</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"row_id"</span>, <span class="st">"subject"</span>, <span class="st">"age"</span>, <span class="st">"roi_1"</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span>,</span>
@@ -156,21 +186,31 @@ says a column is <code>float64</code> or <code>date</code>,
 <p>Structural conformance answers the question “is this dataset
 well-formed?”. Full conformance goes further and tries to resolve every
 non-missing feature.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structural</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_validate.html">nf_validate</a></span><span class="op">(</span><span class="va">roi_ds</span>, level <span class="op">=</span> <span class="st">"structural"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">structural</span><span class="op">$</span><span class="va">valid</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">structural</span><span class="op">$</span><span class="va">valid</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span><span class="va">structural</span></span>
+<span><span class="co">#&gt; $valid</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $errors</span></span>
+<span><span class="co">#&gt; character(0)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $warnings</span></span>
+<span><span class="co">#&gt; character(0)</span></span></code></pre></div>
 <p>For the ROI-only example, full conformance is also straightforward
 because every feature value lives directly in observation-table
 columns.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_validate.html">nf_validate</a></span><span class="op">(</span><span class="va">roi_ds</span>, level <span class="op">=</span> <span class="st">"full"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">full</span><span class="op">$</span><span class="va">valid</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">full</span><span class="op">$</span><span class="va">valid</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span><span class="va">full</span></span>
+<span><span class="co">#&gt; $valid</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $errors</span></span>
+<span><span class="co">#&gt; character(0)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $warnings</span></span>
+<span><span class="co">#&gt; character(0)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="how-do-feature-values-resolve">How Do Feature Values Resolve?<a class="anchor" aria-label="anchor" href="#how-do-feature-values-resolve"></a>
@@ -178,10 +218,10 @@ columns.</p>
 <p>The ROI example stores one logical feature, <code>roi_beta</code>, as
 an ordered set of scalar columns. You can resolve one row at a time or
 collect the feature across all rows.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/nf_resolve.html">nf_resolve</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="fl">1L</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.31 0.44 0.29 0.18 0.22</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">roi_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_collect.html">nf_collect</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">is.matrix</a></span><span class="op">(</span><span class="va">roi_mat</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">roi_mat</span><span class="op">)</span> <span class="op">==</span> <span class="fl">5L</span><span class="op">)</span></span>
 <span></span>
@@ -190,7 +230,7 @@ collect the feature across all rows.</p>
 <p>The package also ships a mixed example with both <code>columns</code>
 and <code>ref</code> encodings. The ROI feature still resolves
 immediately even though the dataset also declares a volume feature.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">faces_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"examples/faces-demo/nftab.yaml"</span>, package <span class="op">=</span> <span class="st">"neurotabs"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">faces_path</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -219,7 +259,7 @@ that names each ROI.</li>
 </ul>
 <p>The shipped <code>faces-demo</code> uses that pattern for its
 three-region ROI feature.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">roi_schema</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_feature_schema.html">nf_feature_schema</a></span><span class="op">(</span><span class="va">faces_ds</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">roi_schema</span><span class="op">$</span><span class="va">axes</span>, <span class="st">"roi"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -230,7 +270,7 @@ three-region ROI feature.</p>
 <span><span class="co">#&gt; &lt;nf_axis_domain&gt;</span></span>
 <span><span class="co">#&gt;   id: desikan3-demo </span></span>
 <span><span class="co">#&gt;   labels: roi_labels.tsv</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">roi_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_axis_labels.html">nf_axis_labels</a></span><span class="op">(</span><span class="va">faces_ds</span>, <span class="st">"roi_beta"</span>, <span class="st">"roi"</span><span class="op">)</span></span>
 <span><span class="va">roi_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_resolve.html">nf_resolve</a></span><span class="op">(</span><span class="va">faces_ds</span>, <span class="fl">1L</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">roi_labels</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">roi_values</span><span class="op">)</span><span class="op">)</span></span>
@@ -257,7 +297,7 @@ column bundles and still mean the same thing.</p>
 materialization through a registered backend. The package also validates
 resource checksums before backend dispatch when a checksum is
 present.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">checksum_detected</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">checksum_detected</span></span>
@@ -274,7 +314,7 @@ did not match the file on disk.</p>
 </h3>
 <p>If you have a table (CSV or data.frame) and a set of NIfTI files, one
 per row:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_from_table.html">nf_from_table</a></span><span class="op">(</span></span>
 <span>  <span class="st">"participants.csv"</span>,          <span class="co"># table with subject, condition, etc.</span></span>
 <span>  feature     <span class="op">=</span> <span class="st">"statmap"</span>,     <span class="co"># name for the feature</span></span>
@@ -283,7 +323,7 @@ per row:</p>
 <span>  root        <span class="op">=</span> <span class="st">"/data/study"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Or if all rows map to successive volumes in a single 4D NIfTI:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_from_table.html">nf_from_table</a></span><span class="op">(</span></span>
 <span>  <span class="va">design_table</span>,                      <span class="co"># data.frame with subject, condition, etc.</span></span>
 <span>  feature <span class="op">=</span> <span class="st">"bold"</span>,</span>
@@ -297,7 +337,7 @@ per row:</p>
 <h3 id="the-manual-way-full-control">The Manual Way: Full Control<a class="anchor" aria-label="anchor" href="#the-manual-way-full-control"></a>
 </h3>
 <p>Every observation column needs a declared dtype and nullability:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obs_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  row_id    <span class="op">=</span> <span class="fu"><a href="../reference/nf_col_schema.html">nf_col_schema</a></span><span class="op">(</span><span class="st">"string"</span>,  nullable <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  subject   <span class="op">=</span> <span class="fu"><a href="../reference/nf_col_schema.html">nf_col_schema</a></span><span class="op">(</span><span class="st">"string"</span>,  nullable <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
@@ -312,7 +352,7 @@ per row:</p>
 <p>A feature has a logical schema (what the resolved value IS) and one
 or more encodings (how to find it). For a 2-element ROI vector stored in
 columns:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">roi_feature</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_feature.html">nf_feature</a></span><span class="op">(</span></span>
 <span>  logical <span class="op">=</span> <span class="fu"><a href="../reference/nf_logical_schema.html">nf_logical_schema</a></span><span class="op">(</span></span>
 <span>    kind  <span class="op">=</span> <span class="st">"vector"</span>,</span>
@@ -329,7 +369,7 @@ columns:</p>
 <h3 id="step-3-build-the-manifest-and-dataset">Step 3: Build the Manifest and Dataset<a class="anchor" aria-label="anchor" href="#step-3-build-the-manifest-and-dataset"></a>
 </h3>
 <p>The manifest ties columns, features, and axes together:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">manifest</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_manifest.html">nf_manifest</a></span><span class="op">(</span></span>
 <span>  dataset_id          <span class="op">=</span> <span class="st">"my-study"</span>,</span>
 <span>  row_id              <span class="op">=</span> <span class="st">"row_id"</span>,</span>
@@ -338,7 +378,7 @@ columns:</p>
 <span>  features            <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>roi <span class="op">=</span> <span class="va">roi_feature</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Then combine the manifest with an observation table:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">observations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  row_id    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r1"</span>, <span class="st">"r2"</span>, <span class="st">"r3"</span>, <span class="st">"r4"</span><span class="op">)</span>,</span>
 <span>  subject   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s01"</span>, <span class="st">"s01"</span>, <span class="st">"s02"</span>, <span class="st">"s02"</span><span class="op">)</span>,</span>
@@ -362,14 +402,14 @@ columns:</p>
 </h3>
 <p><code><a href="../reference/nf_write.html">nf_write()</a></code> produces a portable NFTab directory with a
 YAML manifest and CSV observation table:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"my-study-"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/nf_write.html">nf_write</a></span><span class="op">(</span><span class="va">my_ds</span>, <span class="va">out_dir</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">out_dir</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "nftab.yaml"       "observations.csv"</span></span></code></pre></div>
 <p>The written dataset can be read back with <code><a href="../reference/nf_read.html">nf_read()</a></code>:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_ds2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_read.html">nf_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"nftab.yaml"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/nf_resolve.html">nf_resolve</a></span><span class="op">(</span><span class="va">my_ds2</span>, <span class="st">"r1"</span>, <span class="st">"roi"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5 0.4</span></span></code></pre></div>
@@ -382,14 +422,32 @@ YAML manifest and CSV observation table:</p>
 operate directly on <code>nftab</code> objects. These verbs work with
 both columns-encoded and NIfTI-backed features.</p>
 <div class="section level3">
+<h3 id="a-full-pipeline">A Full Pipeline<a class="anchor" aria-label="anchor" href="#a-full-pipeline"></a>
+</h3>
+<p>This is the core workflow the package is trying to make compact:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">roi_contrast</span> <span class="op">&lt;-</span> <span class="va">roi_ds</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/nf_filter.html">nf_filter</a></span><span class="op">(</span><span class="va">condition</span> <span class="op">==</span> <span class="st">"faces"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/nf_group_by.html">nf_group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/nf_summarize.html">nf_summarize</a></span><span class="op">(</span><span class="st">"roi_beta"</span>, .f <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/nf_compare.html">nf_compare</a></span><span class="op">(</span><span class="st">"roi_beta"</span>, .ref <span class="op">=</span> <span class="st">"control"</span>, .f <span class="op">=</span> <span class="st">"subtract"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">roi_contrast</span></span>
+<span><span class="co">#&gt; &lt;nftab&gt; roi-only-summary </span></span>
+<span><span class="co">#&gt;   2 observations x 1 features</span></span>
+<span><span class="co">#&gt;   axes: group </span></span>
+<span><span class="co">#&gt;   features: roi_beta </span></span>
+<span><span class="co">#&gt;   group: control, patient</span></span></code></pre></div>
+</div>
+<div class="section level3">
 <h3 id="filtering-rows">Filtering Rows<a class="anchor" aria-label="anchor" href="#filtering-rows"></a>
 </h3>
 <p><code><a href="../reference/nf_filter.html">nf_filter()</a></code> selects observations matching a predicate.
 Observation column names are available directly in the expression:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ctrl_ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_filter.html">nf_filter</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="va">group</span> <span class="op">==</span> <span class="st">"ctrl"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/nf_nobs.html">nf_nobs</a></span><span class="op">(</span><span class="va">ctrl_ds</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">control_ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_filter.html">nf_filter</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="va">group</span> <span class="op">==</span> <span class="st">"control"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/nf_nobs.html">nf_nobs</a></span><span class="op">(</span><span class="va">control_ds</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 4</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="selecting-and-arranging">Selecting and Arranging<a class="anchor" aria-label="anchor" href="#selecting-and-arranging"></a>
@@ -397,7 +455,7 @@ Observation column names are available directly in the expression:</p>
 <p><code><a href="../reference/nf_select.html">nf_select()</a></code> keeps named design columns
 (encoding-required columns are always retained).
 <code><a href="../reference/nf_arrange.html">nf_arrange()</a></code> sorts rows:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sorted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_arrange.html">nf_arrange</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="va">subject</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/nf_design.html">nf_design</a></span><span class="op">(</span><span class="va">sorted</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"row_id"</span>, <span class="st">"subject"</span>, <span class="st">"condition"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   row_id subject condition</span></span>
@@ -417,7 +475,7 @@ Observation column names are available directly in the expression:</p>
 row’s feature value. For character operations like <code>"mean"</code>,
 <code>"sum"</code>, <code>"sd"</code>, the package uses optimized batch
 paths:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">means</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_apply.html">nf_apply</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="st">"roi_beta"</span>, <span class="st">"mean"</span><span class="op">)</span></span>
 <span><span class="va">means</span></span>
 <span><span class="co">#&gt;   r01   r02   r03   r04   r05   r06   r07   r08 </span></span>
@@ -429,7 +487,7 @@ paths:</p>
 <p><code><a href="../reference/nf_group_by.html">nf_group_by()</a></code> + <code><a href="../reference/nf_summarize.html">nf_summarize()</a></code> computes
 group-level feature summaries. The result is a new <code>nftab</code>
 with one row per group:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grouped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_group_by.html">nf_group_by</a></span><span class="op">(</span><span class="va">roi_ds</span>, <span class="va">group</span><span class="op">)</span></span>
 <span><span class="va">summary_ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_summarize.html">nf_summarize</a></span><span class="op">(</span><span class="va">grouped</span>, <span class="st">"roi_beta"</span>, .f <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
 <span><span class="va">summary_ds</span></span>
@@ -440,9 +498,46 @@ with one row per group:</p>
 <span><span class="co">#&gt;   group: control, patient</span></span></code></pre></div>
 <p>You can resolve the summarized feature to see the group-level
 average:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/nf_resolve.html">nf_resolve</a></span><span class="op">(</span><span class="va">summary_ds</span>, <span class="fl">1L</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.2000 0.2875 0.2200 0.1375 0.1650</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="comparing-groups">Comparing Groups<a class="anchor" aria-label="anchor" href="#comparing-groups"></a>
+</h3>
+<p><code><a href="../reference/nf_compare.html">nf_compare()</a></code> contrasts summarized feature values against
+a reference group and returns another <code>nftab</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">compared_ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_compare.html">nf_compare</a></span><span class="op">(</span><span class="va">summary_ds</span>, <span class="st">"roi_beta"</span>, .ref <span class="op">=</span> <span class="st">"control"</span>, .f <span class="op">=</span> <span class="st">"subtract"</span><span class="op">)</span></span>
+<span><span class="va">compared_ds</span></span>
+<span><span class="co">#&gt; &lt;nftab&gt; roi-only-summary </span></span>
+<span><span class="co">#&gt;   2 observations x 1 features</span></span>
+<span><span class="co">#&gt;   axes: group </span></span>
+<span><span class="co">#&gt;   features: roi_beta </span></span>
+<span><span class="co">#&gt;   group: control, patient</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/nf_collect.html">nf_collect</a></span><span class="op">(</span><span class="va">compared_ds</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     [,1]  [,2]  [,3]   [,4] [,5]</span></span>
+<span><span class="co">#&gt; .s1  0.0 0.000 0.000 0.0000 0.00</span></span>
+<span><span class="co">#&gt; .s2  0.1 0.085 0.055 0.0725 0.08</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualizing-the-result">Visualizing The Result<a class="anchor" aria-label="anchor" href="#visualizing-the-result"></a>
+</h3>
+<p>Even for a small ROI feature, the summary object is ready to
+plot:</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">summary_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_collect.html">nf_collect</a></span><span class="op">(</span><span class="va">summary_ds</span>, <span class="st">"roi_beta"</span><span class="op">)</span></span>
+<span><span class="va">plot_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">summary_ds</span><span class="op">$</span><span class="va">observations</span><span class="op">$</span><span class="va">group</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">summary_mat</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  roi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">summary_mat</span><span class="op">)</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">summary_mat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  mean_beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">summary_mat</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_df</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">roi</span>, <span class="va">mean_beta</span>, fill <span class="op">=</span> <span class="va">group</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"ROI"</span>, y <span class="op">=</span> <span class="st">"Mean beta"</span>, fill <span class="op">=</span> <span class="st">"Group"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="neurotabs_files/figure-html/summary-plot-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="adding-derived-columns">Adding Derived Columns<a class="anchor" aria-label="anchor" href="#adding-derived-columns"></a>
@@ -450,7 +545,7 @@ average:</p>
 <p><code><a href="../reference/nf_mutate.html">nf_mutate()</a></code> adds new observation columns. Inside
 <code><a href="../reference/nf_mutate.html">nf_mutate()</a></code>, the helper <code>nf_apply_feature()</code>
 derives scalar values from features:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ds_with_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nf_mutate.html">nf_mutate</a></span><span class="op">(</span><span class="va">roi_ds</span>, roi_mean <span class="op">=</span> <span class="fu">nf_apply_feature</span><span class="op">(</span><span class="st">"roi_beta"</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ds_with_mean</span><span class="op">$</span><span class="va">observations</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"row_id"</span>, <span class="st">"subject"</span>, <span class="st">"roi_mean"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   row_id subject roi_mean</span></span>

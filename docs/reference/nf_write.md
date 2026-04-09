@@ -12,7 +12,8 @@ nf_write(x, path, manifest_name = "nftab.yaml")
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - path:
 

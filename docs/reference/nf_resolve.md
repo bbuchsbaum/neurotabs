@@ -13,7 +13,8 @@ nf_resolve(x, row_index, feature, as_array = TRUE)
 
 - x:
 
-  An [nftab](nftab.md) object.
+  An [nftab](https://bbuchsbaum.github.io/neurotabs/reference/nftab.md)
+  object.
 
 - row_index:
 
@@ -21,7 +22,7 @@ nf_resolve(x, row_index, feature, as_array = TRUE)
 
 - feature:
 
-  Character name of the feature to resolve.
+  Feature name as a string or unquoted symbol.
 
 - as_array:
 

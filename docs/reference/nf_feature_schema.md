@@ -16,7 +16,7 @@ nf_feature_schema(x, feature)
 
 - feature:
 
-  Feature name.
+  Feature name as a string or unquoted symbol.
 
 ## Value
 

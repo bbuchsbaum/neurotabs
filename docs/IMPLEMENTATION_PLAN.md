@@ -25,9 +25,9 @@ a real defect.
 The codebase is already partially aligned with the new model.
 
 - `R/schema.R` already defines
-  [`nf_support()`](reference/nf_support.md),
-  [`nf_support_volume()`](reference/nf_support_volume.md),
-  [`nf_support_surface()`](reference/nf_support_surface.md),
+  [`nf_support()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_support.md),
+  [`nf_support_volume()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_support_volume.md),
+  [`nf_support_surface()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_support_surface.md),
   `nf_logical_schema(support_ref = ...)`, and
   `nf_schema_fingerprint(..., support_id = ...)`.
 - `R/nftab-class.R` already enforces support presence when features
@@ -58,7 +58,7 @@ Tasks:
 
 - Copy the updated schema in `spec/` to `inst/schema/`.
 - Confirm the bundled schema still validates manifests through
-  [`nf_read()`](reference/nf_read.md).
+  [`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md).
 - Keep `spec/` as the editable source of truth and `inst/schema/` as the
   packaged runtime copy.
 
@@ -121,14 +121,15 @@ Tasks:
   identical logical shape and `alignment`; these must remain
   incompatible for strict concatenation.
 - Add tests for same-grid and same-topology invalid kind combinations.
-- Improve [`nf_compatible()`](reference/nf_compatible.md) failure
-  reasons where needed so support mismatches are obvious.
+- Improve
+  [`nf_compatible()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_compatible.md)
+  failure reasons where needed so support mismatches are obvious.
 
 Acceptance:
 
 - Support identity changes alter the schema fingerprint.
-- [`nf_compatible()`](reference/nf_compatible.md) reports support-aware
-  incompatibilities clearly.
+- [`nf_compatible()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_compatible.md)
+  reports support-aware incompatibilities clearly.
 - Strict concatenation cannot silently merge spatial features with
   different exact supports.
 
@@ -197,7 +198,9 @@ Acceptance:
 Scope:
 
 - sync `spec/` schema into `inst/schema/`
-- verify [`nf_read()`](reference/nf_read.md) uses the updated bundle
+- verify
+  [`nf_read()`](https://bbuchsbaum.github.io/neurotabs/reference/nf_read.md)
+  uses the updated bundle
 
 Outputs:
 

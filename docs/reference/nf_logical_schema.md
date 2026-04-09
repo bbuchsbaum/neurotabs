@@ -45,7 +45,9 @@ nf_logical_schema(
 
 - axis_domains:
 
-  Optional named list of [nf_axis_domain](nf_axis_domain.md) objects.
+  Optional named list of
+  [nf_axis_domain](https://bbuchsbaum.github.io/neurotabs/reference/nf_axis_domain.md)
+  objects.
 
 - space:
 
