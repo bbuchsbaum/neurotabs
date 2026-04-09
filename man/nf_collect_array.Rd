@@ -9,7 +9,7 @@ nf_collect_array(x, feature, .progress = FALSE)
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Character name of a volumetric (3D) feature.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{.progress}{Show progress messages every 10 rows?  Default \code{FALSE}.}
 }

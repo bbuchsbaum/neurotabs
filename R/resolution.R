@@ -8,7 +8,7 @@
 #'
 #' @param x An [nftab] object.
 #' @param row_index Integer row index, or a character `row_id` value.
-#' @param feature Character name of the feature to resolve.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param as_array If `TRUE` (default), the resolved value is returned as a
 #'   plain R array.  If `FALSE`, the backend's native object is returned when
 #'   available (e.g., a `NeuroVol` for the `"nifti"` backend with neuroim2),
@@ -20,6 +20,12 @@
 #' @export
 nf_resolve <- function(x, row_index, feature, as_array = TRUE) {
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
   feat <- x$manifest$features[[feature]]
   if (is.null(feat)) {
     stop("unknown feature: '", feature, "'", call. = FALSE)
@@ -64,7 +70,7 @@ nf_resolve <- function(x, row_index, feature, as_array = TRUE) {
 #' Resolve all rows for a feature
 #'
 #' @param x An [nftab] object.
-#' @param feature Character name of the feature.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param .progress Show progress? Default `FALSE`.
 #'
 #' @return A list of resolved values, one per row. `NULL` entries indicate
@@ -72,6 +78,12 @@ nf_resolve <- function(x, row_index, feature, as_array = TRUE) {
 #' @export
 nf_resolve_all <- function(x, feature, .progress = FALSE) {
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
   n <- nrow(x$observations)
   results <- vector("list", n)
 

@@ -16,7 +16,7 @@ nf_analyze(
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Feature name to analyze.}
+\item{feature}{Feature name to analyze, as a string or unquoted symbol.}
 
 \item{formula}{Right-hand-side-only formula, for example \code{~ group * condition}
 or \code{~ group * condition + (1 | subject)}.}

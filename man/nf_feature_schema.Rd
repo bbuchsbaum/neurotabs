@@ -9,7 +9,7 @@ nf_feature_schema(x, feature)
 \arguments{
 \item{x}{An nftab object.}
 
-\item{feature}{Feature name.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 }
 \value{
 An \code{nf_logical_schema} object.

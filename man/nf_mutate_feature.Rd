@@ -19,9 +19,9 @@ nf_mutate_feature(
 \arguments{
 \item{x}{An \link{nftab} object or \code{grouped_nftab}.}
 
-\item{name}{Name of the derived feature to create.}
+\item{name}{Name of the derived feature to create, as a string or unquoted symbol.}
 
-\item{feature}{Source feature name.}
+\item{feature}{Source feature name as a string or unquoted symbol.}
 
 \item{.f}{Function applied to each resolved feature value.}
 

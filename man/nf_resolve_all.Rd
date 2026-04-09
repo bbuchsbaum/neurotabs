@@ -9,7 +9,7 @@ nf_resolve_all(x, feature, .progress = FALSE)
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Character name of the feature.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{.progress}{Show progress? Default \code{FALSE}.}
 }

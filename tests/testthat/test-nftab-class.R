@@ -8,17 +8,18 @@ test_that("nftab constructs correctly", {
 
 test_that("feature and axis accessors return public metadata views", {
   ds <- .make_labeled_roi_nftab()
+  feature_name <- "roi_beta"
 
-  schema <- nf_feature_schema(ds, "roi_beta")
+  schema <- nf_feature_schema(ds, roi_beta)
   expect_s3_class(schema, "nf_logical_schema")
   expect_equal(schema$axes, "roi")
 
-  axis_info <- nf_axis_info(ds, "roi_beta", "roi")
+  axis_info <- nf_axis_info(ds, roi_beta, "roi")
   expect_s3_class(axis_info, "nf_axis_domain")
   expect_equal(axis_info$id, "demo-atlas")
   expect_null(axis_info$size)
 
-  labels <- nf_axis_labels(ds, "roi_beta", "roi")
+  labels <- nf_axis_labels(ds, feature_name, "roi")
   expect_equal(names(labels), c("index", "label"))
   expect_equal(labels$label, c("roi_1", "roi_2", "roi_3"))
 })

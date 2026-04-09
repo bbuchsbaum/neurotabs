@@ -438,11 +438,17 @@ nf_extension <- function(x, key) {
 
 #' Logical schema for a feature
 #' @param x An nftab object.
-#' @param feature Feature name.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @return An `nf_logical_schema` object.
 #' @export
 nf_feature_schema <- function(x, feature) {
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
   feat <- x$manifest$features[[feature]]
   if (is.null(feat)) {
     stop("unknown feature: ", feature, call. = FALSE)
@@ -452,12 +458,18 @@ nf_feature_schema <- function(x, feature) {
 
 #' Axis metadata for a feature axis
 #' @param x An nftab object.
-#' @param feature Feature name.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param axis Axis name from the feature's logical schema.
 #' @return An `nf_axis_domain` object.
 #' @export
 nf_axis_info <- function(x, feature, axis) {
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
   schema <- nf_feature_schema(x, feature)
   if (!axis %in% schema$axes) {
     stop("feature '", feature, "' has no axis '", axis, "'", call. = FALSE)
@@ -473,12 +485,18 @@ nf_axis_info <- function(x, feature, axis) {
 
 #' Read axis labels for a feature axis
 #' @param x An nftab object.
-#' @param feature Feature name.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param axis Axis name from the feature's logical schema.
 #' @return A data.frame with at least `index` and `label`.
 #' @export
 nf_axis_labels <- function(x, feature, axis) {
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
   domain <- nf_axis_info(x, feature, axis)
 
   if (is.null(domain$labels) || !nzchar(domain$labels)) {

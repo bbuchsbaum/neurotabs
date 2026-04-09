@@ -12,7 +12,7 @@
 #' to that function.
 #'
 #' @param x An [nftab] object.
-#' @param feature Feature name.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param .f Either a function or a character fixed operation.
 #' @param ... Additional arguments passed to `.f` when `.f` is a function.
 #' @param .progress Show progress during generic row-wise resolution. Default
@@ -31,6 +31,12 @@ nf_apply <- function(x, feature, .f, ..., .progress = FALSE) {
     x <- x$data
   }
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
 
   if (is.character(.f)) {
     if (length(.f) != 1L || !.f %in% .nf_fixed_apply_ops) {
@@ -66,20 +72,26 @@ nf_apply <- function(x, feature, .f, ..., .progress = FALSE) {
 #' list of resolved values for that feature.
 #'
 #' @param x An [nftab] object.
-#' @param feature Feature name.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param by Optional character vector of observation columns defining groups.
 #' @param .f Either a function or a fixed reducer name (`"mean"`, `"sum"`,
 #'   `"var"`, `"sd"`, `"se"`).
 #' @param ... Additional arguments passed to `.f` when `.f` is a function.
 #' @param .progress Show progress during generic resolution. Default `FALSE`.
 #'
-#' @return If `by = NULL`, a single reduced value. Otherwise a `data.frame` with
-#'   grouping columns and a list-column named after `feature`.
+#' @return If `by = NULL`, a single reduced value. Otherwise an [nftab] with one
+#'   row per group and a summarized feature named `feature`.
 #' @export
 nf_summarize <- function(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE) {
   grouped <- inherits(x, "grouped_nftab")
   ds <- if (grouped) x$data else x
   stopifnot(inherits(ds, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(ds$manifest$features),
+    arg = "feature"
+  )
   if (grouped && !is.null(by)) {
     stop("when x is grouped_nftab, supply grouping via nf_group_by() rather than by=", call. = FALSE)
   }
@@ -154,6 +166,12 @@ nf_mutate <- function(x, ...) {
   eval_env <- list2env(as.list(new_obs), parent = parent.frame())
   feature_cache <- new.env(parent = emptyenv())
   eval_env$nf_apply_feature <- function(feature, .f, ..., .progress = FALSE) {
+    feature <- .nf_capture_name(
+      substitute(feature),
+      env = parent.frame(),
+      available = names(ds$manifest$features),
+      arg = "feature"
+    )
     key <- paste("apply", feature, .f, digest::digest(list(...), algo = "xxhash64"), sep = "::")
     if (!exists(key, envir = feature_cache, inherits = FALSE)) {
       feature_cache[[key]] <- nf_apply(ds, feature, .f, ..., .progress = .progress)
@@ -161,6 +179,12 @@ nf_mutate <- function(x, ...) {
     feature_cache[[key]]
   }
   eval_env$nf_collect_feature <- function(feature, simplify = TRUE, .progress = FALSE) {
+    feature <- .nf_capture_name(
+      substitute(feature),
+      env = parent.frame(),
+      available = names(ds$manifest$features),
+      arg = "feature"
+    )
     key <- paste("collect", feature, simplify, sep = "::")
     if (!exists(key, envir = feature_cache, inherits = FALSE)) {
       feature_cache[[key]] <- nf_collect(ds, feature, simplify = simplify, .progress = .progress)
@@ -224,21 +248,36 @@ nf_matched_cohort <- function(x, match_on) {
 #'
 #' If `x` is a `grouped_nftab`, `nf_compare()` first summarizes `feature`
 #' within each group using `.reduce`, then compares every group to the reference
-#' group `.ref`. If `x` is already a summarized `data.frame`, it must contain a
-#' list-column named `feature`.
+#' group `.ref`. If `x` is already a summary [nftab], the comparison is applied
+#' directly to its feature values. If `x` is a summarized `data.frame`, it must
+#' contain a list-column named `feature`.
 #'
-#' @param x A `grouped_nftab` or summarized `data.frame`.
-#' @param feature Feature name / list-column name.
+#' @param x A `grouped_nftab`, summary [nftab], or summarized `data.frame`.
+#' @param feature Feature name / list-column name as a string or unquoted symbol.
 #' @param .ref Reference group. If there is exactly one grouping column, this may
 #'   be a scalar value. Otherwise provide a named list of grouping values.
 #' @param .f Comparison operation: `"subtract"` or `"ratio"`.
 #' @param .reduce Reducer used when `x` is grouped. Default `"mean"`.
 #'
-#' @return A `data.frame` with the same grouping columns and a compared
-#'   list-column named after `feature`.
+#' @return An [nftab] when `x` is a `grouped_nftab` or [nftab]. A summarized
+#'   `data.frame` when `x` is already a summarized `data.frame`.
 #' @export
 nf_compare <- function(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = "mean") {
   op <- match.arg(.f)
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = if (inherits(x, "grouped_nftab")) {
+      names(x$data$manifest$features)
+    } else if (inherits(x, "nftab")) {
+      names(x$manifest$features)
+    } else if (is.data.frame(x)) {
+      names(x)
+    } else {
+      NULL
+    },
+    arg = "feature"
+  )
 
   if (inherits(x, "grouped_nftab")) {
     x <- nf_summarize(x, feature, .f = .reduce)
@@ -415,8 +454,8 @@ nf_compare <- function(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = 
 #' - volumetric features use temporary NIfTI resources
 #'
 #' @param x An [nftab] object or `grouped_nftab`.
-#' @param name Name of the derived feature to create.
-#' @param feature Source feature name.
+#' @param name Name of the derived feature to create, as a string or unquoted symbol.
+#' @param feature Source feature name as a string or unquoted symbol.
 #' @param .f Function applied to each resolved feature value.
 #' @param ... Additional arguments passed to `.f`.
 #' @param logical Optional [nf_logical_schema] describing the derived feature.
@@ -438,11 +477,15 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
   grouped <- inherits(x, "grouped_nftab")
   ds <- if (grouped) x$data else x
   stopifnot(inherits(ds, "nftab"))
+  name <- .nf_capture_name(substitute(name), env = parent.frame(), arg = "name")
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(ds$manifest$features),
+    arg = "feature"
+  )
   if (!is.function(.f)) {
     stop(".f must be a function", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L || !nzchar(name)) {
-    stop("name must be a single non-empty character string", call. = FALSE)
   }
   if (!is.null(ds$manifest$features[[name]])) {
     stop("feature '", name, "' already exists", call. = FALSE)

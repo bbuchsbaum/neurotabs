@@ -9,7 +9,7 @@ nf_apply(x, feature, .f, ..., .progress = FALSE)
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Feature name.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{.f}{Either a function or a character fixed operation.}
 

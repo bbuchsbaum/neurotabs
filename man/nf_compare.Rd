@@ -7,9 +7,9 @@
 nf_compare(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = "mean")
 }
 \arguments{
-\item{x}{A \code{grouped_nftab} or summarized \code{data.frame}.}
+\item{x}{A \code{grouped_nftab}, summary \link{nftab}, or summarized \code{data.frame}.}
 
-\item{feature}{Feature name / list-column name.}
+\item{feature}{Feature name / list-column name as a string or unquoted symbol.}
 
 \item{.ref}{Reference group. If there is exactly one grouping column, this may
 be a scalar value. Otherwise provide a named list of grouping values.}
@@ -19,12 +19,13 @@ be a scalar value. Otherwise provide a named list of grouping values.}
 \item{.reduce}{Reducer used when \code{x} is grouped. Default \code{"mean"}.}
 }
 \value{
-A \code{data.frame} with the same grouping columns and a compared
-list-column named after \code{feature}.
+An \link{nftab} when \code{x} is a \code{grouped_nftab} or \link{nftab}. A summarized
+\code{data.frame} when \code{x} is already a summarized \code{data.frame}.
 }
 \description{
 If \code{x} is a \code{grouped_nftab}, \code{nf_compare()} first summarizes \code{feature}
 within each group using \code{.reduce}, then compares every group to the reference
-group \code{.ref}. If \code{x} is already a summarized \code{data.frame}, it must contain a
-list-column named \code{feature}.
+group \code{.ref}. If \code{x} is already a summary \link{nftab}, the comparison is applied
+directly to its feature values. If \code{x} is a summarized \code{data.frame}, it must
+contain a list-column named \code{feature}.
 }

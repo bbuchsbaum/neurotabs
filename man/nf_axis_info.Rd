@@ -9,7 +9,7 @@ nf_axis_info(x, feature, axis)
 \arguments{
 \item{x}{An nftab object.}
 
-\item{feature}{Feature name.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{axis}{Axis name from the feature's logical schema.}
 }

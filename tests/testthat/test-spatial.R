@@ -167,6 +167,20 @@ test_that("nf_sample works with grouped_nftab input", {
   expect_equal(dim(mat), c(2L, 1L))
 })
 
+test_that("spatial helpers accept bare symbols and string variables", {
+  skip_if_not_installed("RNifti")
+  fix <- .make_nifti_vol_nftab()
+  on.exit(unlink(fix$tmpdir, recursive = TRUE), add = TRUE)
+  feature_name <- "statmap"
+  coords <- matrix(c(1L, 1L, 1L), nrow = 1L)
+
+  expect_equal(nf_sample(fix$ds, statmap, coords), nf_sample(fix$ds, "statmap", coords))
+  expect_equal(
+    nf_collect_array(fix$ds, feature_name)$data,
+    nf_collect_array(fix$ds, "statmap")$data
+  )
+})
+
 # ── nf_collect_array ──────────────────────────────────────────────────────────
 
 test_that("nf_collect_array returns list with data and space", {

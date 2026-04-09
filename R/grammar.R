@@ -237,7 +237,7 @@ nf_arrange <- function(x, ..., .by = NULL) {
 #' Resolves all rows for the named feature and returns results as a list.
 #'
 #' @param x An [nftab] object.
-#' @param feature Character name of the feature.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param simplify If `TRUE` and the feature is 1D with fixed shape, return
 #'   a matrix instead of a list.
 #' @param .progress Show progress? Default `FALSE`.
@@ -249,6 +249,12 @@ nf_collect <- function(x, feature, simplify = TRUE, .progress = FALSE) {
     x <- x$data
   }
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
 
   if (simplify) {
     col_plan <- .nf_columns_plan(x, feature)
@@ -285,7 +291,7 @@ nf_collect <- function(x, feature, simplify = TRUE, .progress = FALSE) {
 #' expected by tools like cluster.explorer.
 #'
 #' @param x An [nftab] object.
-#' @param feature Character name of a volumetric feature.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param coords An `n_coords x 3` integer matrix of voxel grid coordinates
 #'   (1-based) when `coord_type = "voxel"`, or an `n_coords x 3` numeric
 #'   matrix of mm world coordinates when `coord_type = "mm"`.
@@ -304,6 +310,12 @@ nf_sample <- function(x, feature, coords,
   coord_type <- match.arg(coord_type)
   ds <- if (inherits(x, "grouped_nftab")) x$data else x
   stopifnot(inherits(ds, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(ds$manifest$features),
+    arg = "feature"
+  )
 
   feat <- ds$manifest$features[[feature]]
   if (is.null(feat)) stop("unknown feature: '", feature, "'", call. = FALSE)
@@ -389,7 +401,7 @@ nf_sample <- function(x, feature, coords,
 #' first resolved volume.
 #'
 #' @param x An [nftab] object.
-#' @param feature Character name of a volumetric (3D) feature.
+#' @param feature Feature name as a string or unquoted symbol.
 #' @param .progress Show progress messages every 10 rows?  Default `FALSE`.
 #'
 #' @return A named list with two elements:
@@ -403,6 +415,12 @@ nf_sample <- function(x, feature, coords,
 nf_collect_array <- function(x, feature, .progress = FALSE) {
   if (inherits(x, "grouped_nftab")) x <- x$data
   stopifnot(inherits(x, "nftab"))
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
 
   feat <- x$manifest$features[[feature]]
   if (is.null(feat)) stop("unknown feature: '", feature, "'", call. = FALSE)

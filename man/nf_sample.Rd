@@ -16,7 +16,7 @@ nf_sample(
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Character name of a volumetric feature.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{coords}{An \verb{n_coords x 3} integer matrix of voxel grid coordinates
 (1-based) when \code{coord_type = "voxel"}, or an \verb{n_coords x 3} numeric

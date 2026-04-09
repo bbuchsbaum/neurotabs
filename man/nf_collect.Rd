@@ -9,7 +9,7 @@ nf_collect(x, feature, simplify = TRUE, .progress = FALSE)
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Character name of the feature.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{simplify}{If \code{TRUE} and the feature is 1D with fixed shape, return
 a matrix instead of a list.}

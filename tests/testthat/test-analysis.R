@@ -173,6 +173,17 @@ test_that("nf_analyze fixed mode returns nftab for independent ROI rows", {
   expect_true(val$valid)
 })
 
+test_that("nf_analyze accepts bare feature symbols and string variables", {
+  ds <- .make_fixed_roi_nftab()
+  feature_name <- "roi_beta"
+
+  result_symbol <- nf_analyze(ds, roi_beta, ~ group + age)
+  result_string <- nf_analyze(ds, feature_name, ~ group + age)
+
+  expect_equal(result_symbol$observations, result_string$observations)
+  expect_equal(nf_collect(result_symbol, stat), nf_collect(result_string, "stat"))
+})
+
 test_that("nf_analyze subject-blocked mode returns main and interaction tests for ROI features", {
   ds <- .make_analysis_roi_nftab()
 

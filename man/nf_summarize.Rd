@@ -12,7 +12,7 @@ nf_summarise(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE)
 \arguments{
 \item{x}{An \link{nftab} object.}
 
-\item{feature}{Feature name.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{by}{Optional character vector of observation columns defining groups.}
 
@@ -24,8 +24,8 @@ nf_summarise(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE)
 \item{.progress}{Show progress during generic resolution. Default \code{FALSE}.}
 }
 \value{
-If \code{by = NULL}, a single reduced value. Otherwise a \code{data.frame} with
-grouping columns and a list-column named after \code{feature}.
+If \code{by = NULL}, a single reduced value. Otherwise an \link{nftab} with one
+row per group and a summarized feature named \code{feature}.
 }
 \description{
 For character \code{.f} values in \code{c("mean", "sum", "var", "sd", "se")},

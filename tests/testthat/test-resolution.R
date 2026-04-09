@@ -15,6 +15,15 @@ test_that("nf_resolve_all returns named list", {
   expect_equal(all_vals[["r1"]], c(0.3, 0.4, 0.3))
 })
 
+test_that("feature resolvers accept bare symbols and string variables", {
+  ds <- .make_roi_nftab()
+  feature_name <- "roi_beta"
+
+  expect_equal(nf_resolve(ds, 1L, roi_beta), nf_resolve(ds, 1L, "roi_beta"))
+  expect_equal(nf_resolve(ds, "r3", feature_name), nf_resolve(ds, "r3", "roi_beta"))
+  expect_equal(nf_resolve_all(ds, roi_beta), nf_resolve_all(ds, "roi_beta"))
+})
+
 test_that("nf_resolve errors on unknown feature", {
   ds <- .make_roi_nftab()
   expect_error(nf_resolve(ds, 1L, "nonexistent"), "unknown feature")

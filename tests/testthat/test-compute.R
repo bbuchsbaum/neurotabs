@@ -111,6 +111,32 @@ test_that("nf_apply custom functions avoid nf_resolve for columns features", {
   expect_equal(unname(result), unname(rowMeans(nf_collect(ds, "roi_beta"))))
 })
 
+test_that("compute verbs accept bare feature symbols and string variables", {
+  ds <- .make_roi_nftab()
+  grouped <- nf_group_by(ds, group)
+  feature_name <- "roi_beta"
+
+  expect_equal(nf_apply(ds, roi_beta, "mean"), nf_apply(ds, feature_name, "mean"))
+
+  summary_ds <- nf_summarize(grouped, roi_beta, .f = "mean")
+  expect_s3_class(summary_ds, "nftab")
+
+  compared <- nf_compare(summary_ds, roi_beta, .ref = "ctrl", .f = "subtract")
+  expect_s3_class(compared, "nftab")
+
+  mutated_feature <- nf_mutate_feature(ds, roi_scaled, roi_beta, .f = function(v) v * 2)
+  expect_true("roi_scaled" %in% nf_feature_names(mutated_feature))
+
+  mutated_apply <- nf_mutate(ds, roi_mean = nf_apply_feature(roi_beta, "mean"))
+  expect_true("roi_mean" %in% names(mutated_apply$observations))
+
+  mutated_collect <- nf_mutate(
+    ds,
+    roi_first = vapply(nf_collect_feature(roi_beta, simplify = FALSE), `[`, numeric(1), 1L)
+  )
+  expect_true("roi_first" %in% names(mutated_collect$observations))
+})
+
 test_that("nf_apply fixed ops match resolved 4D nifti volumes", {
   skip_if_not_installed("RNifti")
 

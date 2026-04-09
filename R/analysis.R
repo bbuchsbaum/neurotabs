@@ -13,7 +13,7 @@
 #' of the form `(1 | subject)`. It is not a general mixed-model engine.
 #'
 #' @param x An [nftab] object.
-#' @param feature Feature name to analyze.
+#' @param feature Feature name to analyze, as a string or unquoted symbol.
 #' @param formula Right-hand-side-only formula, for example `~ group * condition`
 #'   or `~ group * condition + (1 | subject)`.
 #' @param se_feature Optional standard-error feature. Currently not supported.
@@ -32,9 +32,12 @@ nf_analyze <- function(x,
                        contrasts = "auto",
                        .progress = FALSE) {
   stopifnot(inherits(x, "nftab"))
-  if (!is.character(feature) || length(feature) != 1L || !nzchar(feature)) {
-    stop("'feature' must be a single feature name", call. = FALSE)
-  }
+  feature <- .nf_capture_name(
+    substitute(feature),
+    env = parent.frame(),
+    available = names(x$manifest$features),
+    arg = "feature"
+  )
   if (!inherits(formula, "formula")) {
     stop("'formula' must be a formula", call. = FALSE)
   }

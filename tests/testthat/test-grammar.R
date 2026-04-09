@@ -28,6 +28,17 @@ test_that("nf_collect returns list when simplify=FALSE", {
   expect_length(res, 4L)
 })
 
+test_that("nf_collect accepts bare symbols and string variables", {
+  ds <- .make_roi_nftab()
+  feature_name <- "roi_beta"
+
+  expect_equal(nf_collect(ds, roi_beta), nf_collect(ds, "roi_beta"))
+  expect_equal(
+    nf_collect(ds, feature_name, simplify = FALSE),
+    nf_collect(ds, "roi_beta", simplify = FALSE)
+  )
+})
+
 test_that("nf_select keeps manifest observation columns aligned", {
   ds <- .make_roi_nftab()
   selected <- nf_select(ds, group)

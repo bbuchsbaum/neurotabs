@@ -11,7 +11,7 @@ nf_resolve(x, row_index, feature, as_array = TRUE)
 
 \item{row_index}{Integer row index, or a character \code{row_id} value.}
 
-\item{feature}{Character name of the feature to resolve.}
+\item{feature}{Feature name as a string or unquoted symbol.}
 
 \item{as_array}{If \code{TRUE} (default), the resolved value is returned as a
 plain R array.  If \code{FALSE}, the backend's native object is returned when
