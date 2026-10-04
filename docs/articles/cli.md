@@ -58,7 +58,7 @@ info_payload
 #> [1] "roi-only"
 #> 
 #> $manifest
-#> [1] "/Users/bbuchsbaum/code/neurotabs/inst/examples/roi-only/nftab.yaml"
+#> [1] "/Users/bbuchsbaum/code/wt-neurotabs-albersdown/inst/examples/roi-only/nftab.yaml"
 #> 
 #> $spec_version
 #> [1] "0.1.0"
@@ -108,7 +108,7 @@ validate_payload
 #> [1] "roi-only"
 #> 
 #> $manifest
-#> [1] "/Users/bbuchsbaum/code/neurotabs/inst/examples/roi-only/nftab.yaml"
+#> [1] "/Users/bbuchsbaum/code/wt-neurotabs-albersdown/inst/examples/roi-only/nftab.yaml"
 #> 
 #> $errors
 #> list()
@@ -248,10 +248,10 @@ copy_payload
 #> [1] "roi-only"
 #> 
 #> $output_dir
-#> [1] "/private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp4IEAfF/neurotabs-cli-copy-18957f2a7008"
+#> [1] "/private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmpgny5JS/neurotabs-cli-copy-43cc64dfd53"
 #> 
 #> $manifest
-#> [1] "/private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp4IEAfF/neurotabs-cli-copy-18957f2a7008/nftab.yaml"
+#> [1] "/private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmpgny5JS/neurotabs-cli-copy-43cc64dfd53/nftab.yaml"
 ```
 
 Because the command goes through
