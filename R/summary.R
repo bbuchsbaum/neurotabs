@@ -132,7 +132,8 @@ nf_validate_summary <- function(x, root = NULL) {
   text <- rawToChar(bytes)
   Encoding(text) <- "UTF-8"
   if (!validUTF8(text)) stop("summary table must be UTF-8")
-  text <- sub("\n$", "", gsub("\r\n", "\n", text, fixed = TRUE))
+  # Empty lines after the last record are ignored; empty lines between records stay errors.
+  text <- sub("\n+$", "", gsub("\r\n", "\n", text, fixed = TRUE))
   # Read the header as data so rows wider or narrower than it are rejected
   # instead of being shifted into row names.
   raw <- utils::read.table(text = text, header = FALSE, sep = if (format == "csv") "," else "\t",

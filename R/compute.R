@@ -81,6 +81,9 @@ nf_apply <- function(x, feature, .f, ..., .progress = FALSE) {
 #'
 #' @return If `by = NULL`, a single reduced value. Otherwise an [nftab] with one
 #'   row per group and a summarized feature named `feature`.
+#'   The grouped result keeps the input's extensions, except that `x-summary`
+#'   is dropped with a warning and `x-masked-volume` keeps only the summarized
+#'   feature's mapping, and only when its vector length is unchanged.
 #' @export
 nf_summarize <- function(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE) {
   grouped <- inherits(x, "grouped_nftab")
@@ -975,7 +978,8 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
       row_id       = ".row_id",
       observation_axes = groups$by,
       observation_columns = obs_cols,
-      features     = stats::setNames(list(new_feat), feature)
+      features     = stats::setNames(list(new_feat), feature),
+      extensions   = .nf_derived_extensions(ds, feature, new_feat)
     )
 
     return(nftab(manifest = new_manifest, observations = new_obs))
@@ -1041,7 +1045,8 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
     observation_columns = obs_cols,
     features     = stats::setNames(list(new_feat), feature),
     supports     = ds$manifest$supports,
-    resources_path = "resources.csv"
+    resources_path = "resources.csv",
+    extensions   = .nf_derived_extensions(ds, feature, new_feat)
   )
 
   nftab(manifest = new_manifest, observations = new_obs,

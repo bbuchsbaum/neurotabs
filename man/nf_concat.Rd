@@ -18,3 +18,10 @@ A new \link{nftab} object with rows from all inputs.
 \description{
 Concatenate NFTab datasets (strict row-wise)
 }
+\details{
+Extensions identical in every input are kept; others are dropped
+with a warning. \code{x-summary} is always dropped with a warning because its
+stored summaries no longer describe the rows. \code{x-masked-volume} index-map
+paths are made absolute, like resource locators, and inputs whose
+mappings differ are incompatible (see \code{\link[=nf_compatible]{nf_compatible()}}).
+}

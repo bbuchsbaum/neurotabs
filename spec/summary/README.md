@@ -113,7 +113,8 @@ values may legitimately have zero-width bounds. These examples describe stored
 meaning; 0.1 does not certify a calculator.
 
 CSV/TSV use UTF-8, a header, decimal-point numbers, and an empty field for null
-in reserved numeric/text columns. Headers MUST be unique. Fields containing a
+in reserved numeric/text columns. Headers MUST be unique. Readers MUST ignore
+empty lines after the last record; an empty line between records is an error. Fields containing a
 delimiter, quote, or newline are quoted, with embedded quotes doubled. Literal
 `NA` text is not a null marker. `NaN` and infinities MUST NOT be written as
 numbers. JSON fixture rows use explicit null. Writers MUST retain float64

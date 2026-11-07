@@ -61,6 +61,11 @@ nf_compatible <- function(a, b) {
     }
   }
 
+  # 6. Masked-volume voxel maps must agree (they define the voxel support)
+  for (fname in .nf_masked_volume_mismatches(a, b)) {
+    reasons <- c(reasons, paste0("feature '", fname, "': x-masked-volume mapping mismatch"))
+  }
+
   result <- list(compatible = length(reasons) == 0L, reasons = reasons)
   invisible(result)
 }
@@ -71,6 +76,11 @@ nf_compatible <- function(a, b) {
 #' @param provenance_col Name of provenance column to add. Default
 #'   `"source_dataset"`. Set to `NULL` to skip.
 #'
+#' @details Extensions identical in every input are kept; others are dropped
+#'   with a warning. `x-summary` is always dropped with a warning because its
+#'   stored summaries no longer describe the rows. `x-masked-volume` index-map
+#'   paths are made absolute, like resource locators, and inputs whose
+#'   mappings differ are incompatible (see [nf_compatible()]).
 #' @return A new [nftab] object with rows from all inputs.
 #' @export
 nf_concat <- function(..., provenance_col = "source_dataset") {
@@ -88,9 +98,7 @@ nf_concat <- function(..., provenance_col = "source_dataset") {
     }
   }
 
-  if (any(vapply(datasets, function(d) !is.null(d$manifest$extensions[["x-summary"]]), logical(1)))) {
-    warning("nf_concat dropped x-summary because its stored summaries may be stale", call. = FALSE)
-  }
+  extensions <- .nf_concat_extensions(datasets)
 
   prepared <- vector("list", length(datasets))
   merged_resources_so_far <- NULL
@@ -166,7 +174,8 @@ nf_concat <- function(..., provenance_col = "source_dataset") {
       NULL
     },
     supports = base_manifest$supports,
-    primary_feature = base_manifest$primary_feature
+    primary_feature = base_manifest$primary_feature,
+    extensions = extensions
   )
 
   nftab(

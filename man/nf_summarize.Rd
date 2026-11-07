@@ -26,6 +26,9 @@ nf_summarise(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE)
 \value{
 If \code{by = NULL}, a single reduced value. Otherwise an \link{nftab} with one
 row per group and a summarized feature named \code{feature}.
+The grouped result keeps the input's extensions, except that \code{x-summary}
+is dropped with a warning and \code{x-masked-volume} keeps only the summarized
+feature's mapping, and only when its vector length is unchanged.
 }
 \description{
 For character \code{.f} values in \code{c("mean", "sum", "var", "sd", "se")},
