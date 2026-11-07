@@ -41,6 +41,10 @@ NFTab does not standardize:
 The design matrix used for modeling is out of scope. NFTab stores semantic
 design columns, not a committed model parameterization.
 
+The optional [Summary Profile](summary/README.md) defines `extensions.x-summary`
+for stored scalar estimates and interval bounds, with optional design and plot
+metadata. It is versioned separately and does not change core NFTab conformance.
+
 ## 2. Normative Language
 
 The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,

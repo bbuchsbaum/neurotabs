@@ -6,6 +6,7 @@
 ^IMPLEMENTATION_PLAN\.md$
 ^PRD\.md$
 ^spec$
+^conformance$
 ^docs$
 ^pkgdown$
 ^_pkgdown\.yml$
