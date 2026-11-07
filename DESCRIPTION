@@ -42,4 +42,5 @@ Suggests:
     albersdown
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-Config/Needs/website: albersdown
+Config/Needs/website:
+    bbuchsbaum/albersdown
