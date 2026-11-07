@@ -34,7 +34,9 @@ round-trip-safe JSON numbers. For CSV, format numeric cells with `sprintf("%.17g
 value)` before writing; default formatting can lose significant digits.
 
 Downstream suites should run these fixtures against their own production
-readers, writers, and renderers. The R test adapter is deliberately separate
-from those implementations and does not establish their conformance. No 0.1
+readers, writers, and renderers. The neurotabs suite exercises canonical rows
+through `nf_validate_summary()` and copies embedded bundles through
+`nf_write()`/`nf_read()`. Legacy imports and reference labels use a test adapter;
+these checks do not establish downstream conformance. No 0.1
 fixture claims calculator accuracy. The sample CSV is a standalone descriptor
 example, not a complete NFTab dataset.

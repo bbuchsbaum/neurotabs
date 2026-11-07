@@ -183,6 +183,7 @@ nf_select <- function(x, ..., .cols = NULL) {
   new_obs <- ds$observations[, all_keep, drop = FALSE]
   new_manifest <- ds$manifest
   new_manifest$observation_columns <- ds$manifest$observation_columns[all_keep]
+  if (!identical(new_obs, ds$observations)) new_manifest <- .nf_drop_summary(new_manifest, "nf_select")
 
   out <- nftab(
     manifest = new_manifest,

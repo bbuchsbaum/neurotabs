@@ -274,3 +274,10 @@ test_that("nf_analyze subject-blocked mode returns volumetric nftab results", {
   stat_vol <- nf_resolve(result, 1L, "stat")
   expect_equal(dim(stat_vol), c(2L, 2L, 2L))
 })
+
+test_that("nf_analyze warns that it drops x-summary", {
+  ds <- .make_fixed_roi_nftab()
+  ds$manifest$extensions <- list(`x-summary` = list(version = "0.1.0", tables = list()))
+  expect_warning(result <- nf_analyze(ds, "roi_beta", ~ group + age), "nf_analyze dropped x-summary")
+  expect_null(nf_extensions(result)[["x-summary"]])
+})

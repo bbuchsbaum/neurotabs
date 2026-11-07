@@ -97,6 +97,8 @@ nf_summarize <- function(x, feature, by = NULL, .f = "mean", ..., .progress = FA
   }
   groups <- if (grouped) .nf_split_groups(ds$observations, x$by) else .nf_split_groups(ds$observations, by)
 
+  ds$manifest <- .nf_drop_summary(ds$manifest, "nf_summarize")
+
   if (is.character(.f)) {
     if (length(.f) != 1L || !.f %in% .nf_fixed_reduce_ops) {
       stop(
@@ -200,6 +202,7 @@ nf_mutate <- function(x, ...) {
   }
 
   new_manifest <- ds$manifest
+  if (!identical(new_obs, ds$observations)) new_manifest <- .nf_drop_summary(new_manifest, "nf_mutate")
   for (nm in expr_names) {
     new_manifest$observation_columns[[nm]] <- .nf_infer_col_schema(new_obs[[nm]])
   }
@@ -285,6 +288,7 @@ nf_compare <- function(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = 
 
   # nftab path: resolve all feature values, compare, return nftab
   if (inherits(x, "nftab")) {
+    x$manifest <- .nf_drop_summary(x$manifest, "nf_compare")
     # If .ref is itself an nftab, resolve and reduce it to a reference value
     if (inherits(.ref, "nftab")) {
       ref_values <- nf_collect(.ref, feature, simplify = TRUE)
@@ -524,6 +528,7 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
     }
   }
 
+  ds$manifest <- .nf_drop_summary(ds$manifest, "nf_mutate_feature")
   out <- switch(
     storage,
     columns = .nf_materialize_columns_feature(

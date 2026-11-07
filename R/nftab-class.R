@@ -539,9 +539,12 @@ nf_design <- function(x) {
 #' @param ... Ignored.
 #' @export
 `[.nftab` <- function(x, i, ...) {
+  observations <- x$observations[i, , drop = FALSE]
+  manifest <- if (identical(observations, x$observations)) x$manifest else
+    .nf_drop_summary(x$manifest, "row subsetting")
   nftab(
-    manifest = x$manifest,
-    observations = x$observations[i, , drop = FALSE],
+    manifest = manifest,
+    observations = observations,
     resources = x$resources,
     .root = x$.root
   )

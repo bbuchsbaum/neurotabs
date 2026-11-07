@@ -88,6 +88,10 @@ nf_concat <- function(..., provenance_col = "source_dataset") {
     }
   }
 
+  if (any(vapply(datasets, function(d) !is.null(d$manifest$extensions[["x-summary"]]), logical(1)))) {
+    warning("nf_concat dropped x-summary because its stored summaries may be stale", call. = FALSE)
+  }
+
   prepared <- vector("list", length(datasets))
   merged_resources_so_far <- NULL
   for (i in seq_along(datasets)) {

@@ -226,7 +226,10 @@ an unsafe operation safe by setting a `safe: true` flag. Dropping a declaration
 does not authorize deleting source files. Generic NFTab readers may ignore this
 extension, as core NFTab already permits; this draft does not change their core
 conformance. Tools claiming summary-aware transformation support must follow
-this rule. Existing neurotabs verbs are not yet qualified for this role.
+this rule. Neurotabs drops `x-summary` with a warning on observation-changing
+verbs and copies its table files during `nf_write()`. Byte-identical row copies
+may preserve the descriptor. Direct manual edits to an R object bypass these
+verb checks; callers must drop or regenerate summaries after such edits.
 
 The three components (registry, summary, plot) have separate versions in
 `compatibility.json`. Producers write only its contract version. Adopters vendor
@@ -257,11 +260,20 @@ have the same meaning.
 JSON Schemas check structure and conditional requirements. A semantic pass also
 checks finite numbers, bound ordering, registry applicability, referenced columns,
 and file resolution. Passing the JSON Schema alone is not full conformance.
-The R test adapter demonstrates these boundaries; it is not a new public API.
+The R function `nf_validate_summary()` checks descriptors, table contents, plot
+references, and file paths. It accepts a standalone descriptor file, an NFTab
+manifest file, a descriptor list with an explicit root, or an `nftab` object.
+It returns `valid`, `errors`, `warnings`, and validated `tables`. Core
+`nf_validate()` remains separate, so generic NFTab reading is unaffected.
+`nf_write()` checks attached summaries before writing and copies their tables
+without numeric reserialization. It rejects paths colliding with core output
+files or different summary data already at the destination. The optional
+`jsonvalidate` dependency is required for summary validation and safe copying.
 
 0.2 calculator fixtures will use float64 expected values and explicit absolute
 and relative tolerances; float32 conversion paths require separate checks.
-The current draft's tests qualify the artifact and reference adapter only.
+The current draft's tests qualify the artifact and neurotabs validation/copy
+paths; legacy-import and label examples also use a small test adapter.
 They do not certify brainflow2 or neuromosaic, nor modify their implementations.
 Release 1.0 requires independent producer/consumer round trips, including a third
 producer, rather than a count of schema-valid writers alone.

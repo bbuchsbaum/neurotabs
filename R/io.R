@@ -57,9 +57,18 @@ nf_read <- function(path, validate_schema = TRUE) {
 #' @export
 nf_write <- function(x, path, manifest_name = "nftab.yaml") {
   stopifnot(inherits(x, "nftab"))
+  if (!tolower(tools::file_ext(manifest_name)) %in% c("yaml", "yml", "json")) {
+    stop("manifest_name must end in .yaml, .yml, or .json", call. = FALSE)
+  }
+  created <- !dir.exists(path)
   dir.create(path, showWarnings = FALSE, recursive = TRUE)
 
   m <- x$manifest
+  # Preflight summary tables before any core file is written.
+  summary_plan <- tryCatch(.nf_summary_copy_plan(x, path, manifest_name), error = function(e) {
+    if (created && !length(list.files(path, all.files = TRUE, no.. = TRUE))) unlink(path, recursive = TRUE)
+    stop(e)
+  })
 
   # Write observation table
   obs_path <- file.path(path, m$observation_table$path)
@@ -83,14 +92,22 @@ nf_write <- function(x, path, manifest_name = "nftab.yaml") {
     .write_table(resources, res_path, m$resources$format)
   }
 
+  .nf_summary_copy(summary_plan)
+
   # Write manifest
   manifest_raw <- .manifest_to_list(m)
+  if (!is.null(manifest_raw$extensions[["x-summary"]])) {
+    manifest_raw$extensions[["x-summary"]] <- .nf_summary_prepare_descriptor(manifest_raw$extensions[["x-summary"]])
+  }
   manifest_path <- file.path(path, manifest_name)
   ext <- tolower(tools::file_ext(manifest_name))
   if (ext %in% c("yaml", "yml")) {
-    yaml::write_yaml(manifest_raw, manifest_path)
+    yaml::write_yaml(manifest_raw, manifest_path, precision = 17)
   } else if (ext == "json") {
-    writeLines(jsonlite::toJSON(manifest_raw, auto_unbox = TRUE, pretty = TRUE),
+    extensions <- manifest_raw$extensions
+    manifest_json <- .prepare_manifest_for_schema_json(manifest_raw)
+    if (!is.null(extensions)) manifest_json$extensions <- extensions
+    writeLines(jsonlite::toJSON(manifest_json, auto_unbox = TRUE, pretty = TRUE, digits = I(17)),
                manifest_path)
   } else {
     stop("manifest_name must end in .yaml, .yml, or .json", call. = FALSE)
@@ -163,7 +180,7 @@ nf_write <- function(x, path, manifest_name = "nftab.yaml") {
 .prepare_manifest_for_schema_json <- function(x, path = character()) {
   if (is.list(x)) {
     if (is.null(names(x))) {
-      return(lapply(x, .prepare_manifest_for_schema_json, path = path))
+      return(lapply(x, .prepare_manifest_for_schema_json, path = c(path, "[]")))
     }
 
     out <- lapply(names(x), function(nm) {
