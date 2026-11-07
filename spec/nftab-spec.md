@@ -41,6 +41,10 @@ NFTab does not standardize:
 The design matrix used for modeling is out of scope. NFTab stores semantic
 design columns, not a committed model parameterization.
 
+The optional [Summary Profile](summary/README.md) defines `extensions.x-summary`
+for stored scalar estimates and interval bounds, with optional design and plot
+metadata. It is versioned separately and does not change core NFTab conformance.
+
 ## 2. Normative Language
 
 The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,
@@ -637,6 +641,13 @@ writer MUST rename at least one `resource_id` and update all referencing rows.
 
 Writers performing concatenation SHOULD add a provenance column such as
 `source_dataset`.
+
+Extensions are opaque to core concatenation. A writer SHOULD carry an extension
+whose value is identical in every input and SHOULD warn when it drops one that
+differs. An `x-masked-volume` mapping (Appendix C) defines the voxel support of
+its feature, so inputs whose mappings for a feature differ in fields or index-map
+content are not strict-concatenation-compatible. Extensions with their own
+lifecycle rules, such as `x-summary`, follow those rules.
 
 Datasets with different feature name sets are not strict-concatenation-compatible
 under version 0.1.

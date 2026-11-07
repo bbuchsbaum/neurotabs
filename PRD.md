@@ -561,6 +561,12 @@ The JSON Schema (`nftab-manifest.schema.json`) enables validation in any languag
 
 ## 12. Open Questions
 
+The optional [Summary Profile 0.1 draft](spec/summary/README.md) adds portable
+stored summaries through `extensions.x-summary`, building on neuromosaic and
+brainflow2. Its registry, schemas, and shared fixtures are owned here. This does
+not change the core feature model or `nf_summarise()`; calculator conformance and
+consumer migration are separate follow-up work.
+
 1. **Verb prefix**: `nf_` vs `nt_` vs bare names with `.nftab` methods? Using `nf_` for now to avoid dplyr conflicts.
 
 2. **Grouped summaries that produce volumes**: When `nf_summarise()` computes a mean volume per group, the result is a new nftab where each row is a group and the feature is a derived volume. Should derived volumes be materialized to disk or held in memory? (Answer: tiered — small results in memory, large results cached to temp files.)

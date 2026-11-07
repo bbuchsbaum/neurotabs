@@ -81,6 +81,9 @@ nf_apply <- function(x, feature, .f, ..., .progress = FALSE) {
 #'
 #' @return If `by = NULL`, a single reduced value. Otherwise an [nftab] with one
 #'   row per group and a summarized feature named `feature`.
+#'   The grouped result keeps the input's extensions, except that `x-summary`
+#'   is dropped with a warning and `x-masked-volume` keeps only the summarized
+#'   feature's mapping, and only when its vector length is unchanged.
 #' @export
 nf_summarize <- function(x, feature, by = NULL, .f = "mean", ..., .progress = FALSE) {
   grouped <- inherits(x, "grouped_nftab")
@@ -96,6 +99,8 @@ nf_summarize <- function(x, feature, by = NULL, .f = "mean", ..., .progress = FA
     stop("when x is grouped_nftab, supply grouping via nf_group_by() rather than by=", call. = FALSE)
   }
   groups <- if (grouped) .nf_split_groups(ds$observations, x$by) else .nf_split_groups(ds$observations, by)
+
+  ds$manifest <- .nf_drop_summary(ds$manifest, "nf_summarize")
 
   if (is.character(.f)) {
     if (length(.f) != 1L || !.f %in% .nf_fixed_reduce_ops) {
@@ -200,6 +205,7 @@ nf_mutate <- function(x, ...) {
   }
 
   new_manifest <- ds$manifest
+  if (!identical(new_obs, ds$observations)) new_manifest <- .nf_drop_summary(new_manifest, "nf_mutate")
   for (nm in expr_names) {
     new_manifest$observation_columns[[nm]] <- .nf_infer_col_schema(new_obs[[nm]])
   }
@@ -285,6 +291,7 @@ nf_compare <- function(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = 
 
   # nftab path: resolve all feature values, compare, return nftab
   if (inherits(x, "nftab")) {
+    x$manifest <- .nf_drop_summary(x$manifest, "nf_compare")
     # If .ref is itself an nftab, resolve and reduce it to a reference value
     if (inherits(.ref, "nftab")) {
       ref_values <- nf_collect(.ref, feature, simplify = TRUE)
@@ -524,6 +531,7 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
     }
   }
 
+  ds$manifest <- .nf_drop_summary(ds$manifest, "nf_mutate_feature")
   out <- switch(
     storage,
     columns = .nf_materialize_columns_feature(
@@ -970,7 +978,8 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
       row_id       = ".row_id",
       observation_axes = groups$by,
       observation_columns = obs_cols,
-      features     = stats::setNames(list(new_feat), feature)
+      features     = stats::setNames(list(new_feat), feature),
+      extensions   = .nf_derived_extensions(ds, feature, new_feat)
     )
 
     return(nftab(manifest = new_manifest, observations = new_obs))
@@ -1036,7 +1045,8 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
     observation_columns = obs_cols,
     features     = stats::setNames(list(new_feat), feature),
     supports     = ds$manifest$supports,
-    resources_path = "resources.csv"
+    resources_path = "resources.csv",
+    extensions   = .nf_derived_extensions(ds, feature, new_feat)
   )
 
   nftab(manifest = new_manifest, observations = new_obs,

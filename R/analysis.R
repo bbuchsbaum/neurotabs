@@ -80,6 +80,7 @@ nf_analyze <- function(x,
     )
   }
 
+  .nf_drop_summary(x$manifest, "nf_analyze")
   .nf_pack_analysis_nftab(
     source_ds = x,
     source_feature = feature,
