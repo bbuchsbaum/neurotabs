@@ -31,7 +31,10 @@ or \code{~ group * condition + (1 | subject)}.}
 \value{
 An \link{nftab} with one row per generated test and feature maps/vectors
 named \code{stat}, \code{p_value}, and \code{estimate} when a 1-df test has a signed
-contrast estimate.
+contrast estimate. When \code{x} was read from (or written to) disk, the result
+carries an \code{x-backing} extension naming the source dataset, feature and
+formula, so viewers can show the data behind each map; \code{\link[=nf_write]{nf_write()}} stores
+the link relative to the written manifest.
 }
 \description{
 Fits fast exploratory term tests over a numeric NFTab feature and returns the

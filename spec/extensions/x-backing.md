@@ -35,7 +35,7 @@ extensions:
 | `formula` | No | The model or computation, as text. No expression language is defined; it is documentation. |
 | `source_checksum` | No | `sha256:<hex>` of the source manifest's bytes when the map was written, so a reader can tell that the source changed since. |
 
-The link applies to every volume feature of the result dataset unless a
+The link applies to every feature of the result dataset unless a
 feature-level form is used:
 
 ```yaml
@@ -76,9 +76,12 @@ A manifest uses either the dataset-level fields or `features`, not both.
 
 ## 5. Lifecycle
 
-Operations that change the result dataset's observations or the referenced
-features MUST drop `x-backing` and warn, as for `x-summary` (Summary Profile
-§8), unless they rewrite the link correctly. Copying a result dataset without
+Operations that change the values of the linked features, or derive new
+features from them, MUST drop `x-backing` and warn, unless they rewrite the
+link correctly. Subsetting rows, selecting features, or editing design columns
+leaves the stored maps as they were computed and MAY keep the link. Writing the
+dataset to a new location MUST rewrite `source` relative to the new manifest,
+or drop the link with a warning when the source cannot be reached. Copying a result dataset without
 its source breaks the link; writers SHOULD copy or relink the source.
 Concatenating results that link to different sources is not
 strict-concatenation-compatible unless the `features` form keeps each link.
@@ -89,5 +92,6 @@ strict-concatenation-compatible unless the `features` form keeps each link.
   points at the observations so a viewer can summarise them at any location.
   A dataset may carry both.
 - Implementations: neuroimjs (`NFTab.followBacking()`, the backed-plot viewer)
-  reads the dataset-level form. neurotabs does not yet write it; `nf_analyze()`
-  is the natural writer.
+  reads both forms. In neurotabs, `nf_analyze()` writes the dataset-level form
+  when its input is on disk, `nf_write()` relinks it, `nf_validate()` checks it,
+  and `nf_summarize()`, `nf_compare()` and `nf_mutate_feature()` drop it.

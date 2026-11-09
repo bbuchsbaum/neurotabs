@@ -23,7 +23,10 @@
 #'
 #' @return An [nftab] with one row per generated test and feature maps/vectors
 #'   named `stat`, `p_value`, and `estimate` when a 1-df test has a signed
-#'   contrast estimate.
+#'   contrast estimate. When `x` was read from (or written to) disk, the result
+#'   carries an `x-backing` extension naming the source dataset, feature and
+#'   formula, so viewers can show the data behind each map; [nf_write()] stores
+#'   the link relative to the written manifest.
 #' @export
 nf_analyze <- function(x,
                        feature,
@@ -85,7 +88,8 @@ nf_analyze <- function(x,
     source_ds = x,
     source_feature = feature,
     result_obs = result$observations,
-    result_values = result$values
+    result_values = result$values,
+    backing = .nf_backing_link(x, feature, formula)
   )
 }
 
@@ -716,12 +720,18 @@ nf_analyze <- function(x,
   )
 }
 
-.nf_pack_analysis_nftab <- function(source_ds, source_feature, result_obs, result_values) {
+.nf_pack_analysis_nftab <- function(source_ds, source_feature, result_obs, result_values,
+                                    backing = NULL) {
   source_feat <- source_ds$manifest$features[[source_feature]]
-  if (length(source_feat$logical$axes) == 1L) {
-    return(.nf_pack_analysis_columns(source_ds, source_feat, result_obs, result_values))
+  out <- if (length(source_feat$logical$axes) == 1L) {
+    .nf_pack_analysis_columns(source_ds, source_feat, result_obs, result_values)
+  } else {
+    .nf_pack_analysis_nifti(source_ds, source_feat, result_obs, result_values)
   }
-  .nf_pack_analysis_nifti(source_ds, source_feat, result_obs, result_values)
+  # Record what the result was computed from (x-backing), when the source
+  # dataset is on disk to be pointed at.
+  if (!is.null(backing)) out$manifest$extensions <- list(`x-backing` = backing)
+  out
 }
 
 .nf_analysis_obs_schemas <- function(result_obs) {

@@ -291,7 +291,7 @@ nf_compare <- function(x, feature, .ref, .f = c("subtract", "ratio"), .reduce = 
 
   # nftab path: resolve all feature values, compare, return nftab
   if (inherits(x, "nftab")) {
-    x$manifest <- .nf_drop_summary(x$manifest, "nf_compare")
+    x$manifest <- .nf_drop_backing(.nf_drop_summary(x$manifest, "nf_compare"), "nf_compare")
     # If .ref is itself an nftab, resolve and reduce it to a reference value
     if (inherits(.ref, "nftab")) {
       ref_values <- nf_collect(.ref, feature, simplify = TRUE)
@@ -531,7 +531,7 @@ nf_mutate_feature <- function(x, name, feature, .f, ..., logical = NULL,
     }
   }
 
-  ds$manifest <- .nf_drop_summary(ds$manifest, "nf_mutate_feature")
+  ds$manifest <- .nf_drop_backing(.nf_drop_summary(ds$manifest, "nf_mutate_feature"), "nf_mutate_feature")
   out <- switch(
     storage,
     columns = .nf_materialize_columns_feature(
