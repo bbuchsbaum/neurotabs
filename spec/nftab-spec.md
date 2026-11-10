@@ -45,6 +45,10 @@ The optional [Summary Profile](summary/README.md) defines `extensions.x-summary`
 for stored scalar estimates and interval bounds, with optional design and plot
 metadata. It is versioned separately and does not change core NFTab conformance.
 
+Further optional extensions are proposed as drafts in [extensions/](extensions/README.md):
+`x-backing` (the dataset a result map was computed from) and `x-volume-series`
+(volumes with a non-spatial axis such as FIR lags or basis coefficients).
+
 ## 2. Normative Language
 
 The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,

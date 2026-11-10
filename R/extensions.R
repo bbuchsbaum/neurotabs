@@ -3,6 +3,7 @@
 # Make x-masked-volume index maps absolute so they stay resolvable when the
 # derived dataset has a different (or no) root, as for resource locators.
 .nf_rebase_extensions <- function(ext, root) {
+  if (!is.null(ext[["x-backing"]])) ext[["x-backing"]] <- .nf_backing_rebase(ext[["x-backing"]], root)
   mv <- ext[["x-masked-volume"]]
   if (is.null(mv) || is.null(root) || !is.list(mv$features)) return(ext)
   for (name in names(mv$features)) {
@@ -69,7 +70,8 @@
 # keep other extensions, and keep the feature's masked-volume mapping only if
 # its vector length is unchanged.
 .nf_derived_extensions <- function(ds, feature, new_feature) {
-  ext <- .nf_rebase_extensions(.nf_drop_summary(ds$manifest, "nf_summarize")$extensions, ds$.root)
+  manifest <- .nf_drop_backing(.nf_drop_summary(ds$manifest, "nf_summarize"), "nf_summarize")
+  ext <- .nf_rebase_extensions(manifest$extensions, ds$.root)
   mv <- ext[["x-masked-volume"]]
   if (!is.null(mv)) {
     entry <- mv$features[[feature]]

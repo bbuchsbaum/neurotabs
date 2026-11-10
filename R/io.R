@@ -96,6 +96,11 @@ nf_write <- function(x, path, manifest_name = "nftab.yaml") {
 
   # Write manifest
   manifest_raw <- .manifest_to_list(m)
+  if (!is.null(manifest_raw$extensions[["x-backing"]])) {
+    manifest_raw$extensions[["x-backing"]] <-
+      .nf_backing_for_write(manifest_raw$extensions[["x-backing"]], x$.root, path)
+    if (!length(manifest_raw$extensions)) manifest_raw$extensions <- NULL
+  }
   if (!is.null(manifest_raw$extensions[["x-summary"]])) {
     manifest_raw$extensions[["x-summary"]] <- .nf_summary_prepare_descriptor(manifest_raw$extensions[["x-summary"]])
   }

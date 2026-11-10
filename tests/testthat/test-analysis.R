@@ -281,3 +281,80 @@ test_that("nf_analyze warns that it drops x-summary", {
   expect_warning(result <- nf_analyze(ds, "roi_beta", ~ group + age), "nf_analyze dropped x-summary")
   expect_null(nf_extensions(result)[["x-summary"]])
 })
+
+# x-backing (spec/extensions/x-backing.md): results record what they came from.
+
+.analysis_on_disk <- function() {
+  study <- tempfile("backing-study-")
+  dir.create(study)
+  nf_write(.make_analysis_roi_nftab(), file.path(study, "betas"))
+  list(study = study, ds = nf_read(file.path(study, "betas", "nftab.yaml")))
+}
+
+test_that("nf_analyze links its result to the source dataset, and nf_write stores the link relative", {
+  src <- .analysis_on_disk()
+  on.exit(unlink(src$study, recursive = TRUE))
+  result <- nf_analyze(src$ds, "roi_beta", ~ group * condition + (1 | subject))
+  link <- result$manifest$extensions[["x-backing"]]
+  expect_identical(link$version, "0.1.0")
+  expect_identical(link$feature, "roi_beta")
+  expect_match(link$formula, "group * condition", fixed = TRUE)
+  expect_match(link$source_checksum, "^sha256:[0-9a-f]{64}$")
+  expect_true(file.exists(link$source))
+  expect_true(nf_validate(result)$valid)
+
+  nf_write(result, file.path(src$study, "group"), manifest_name = "nftab.json")
+  written <- jsonlite::fromJSON(file.path(src$study, "group", "nftab.json"), simplifyVector = FALSE)
+  stored <- written$extensions[["x-backing"]]
+  expect_identical(stored$source, "../betas/nftab.yaml")
+  expect_identical(stored$source_checksum, link$source_checksum)
+
+  # Read back and written elsewhere, the link still reaches the source.
+  again <- nf_read(file.path(src$study, "group", "nftab.json"))
+  nf_write(again, file.path(src$study, "deeper", "copy"), manifest_name = "nftab.json")
+  moved <- jsonlite::fromJSON(file.path(src$study, "deeper", "copy", "nftab.json"), simplifyVector = FALSE)
+  expect_identical(moved$extensions[["x-backing"]]$source, "../../betas/nftab.yaml")
+})
+
+test_that("an in-memory source gets no link, and a vanished source drops it on write", {
+  result <- nf_analyze(.make_analysis_roi_nftab(), "roi_beta", ~ group * condition + (1 | subject))
+  expect_null(result$manifest$extensions[["x-backing"]])
+
+  src <- .analysis_on_disk()
+  on.exit(unlink(src$study, recursive = TRUE))
+  linked <- nf_analyze(src$ds, "roi_beta", ~ group * condition + (1 | subject))
+  unlink(file.path(src$study, "betas"), recursive = TRUE)
+  out <- file.path(src$study, "group")
+  expect_warning(nf_write(linked, out, manifest_name = "nftab.json"), "dropped x-backing")
+  written <- jsonlite::fromJSON(file.path(out, "nftab.json"), simplifyVector = FALSE)
+  expect_null(written$extensions[["x-backing"]])
+})
+
+test_that("x-backing survives row subsetting, is dropped when values change, and is validated", {
+  src <- .analysis_on_disk()
+  on.exit(unlink(src$study, recursive = TRUE))
+  result <- nf_analyze(src$ds, "roi_beta", ~ group * condition + (1 | subject))
+  expect_false(is.null(result[1L]$manifest$extensions[["x-backing"]]))
+  expect_warning(
+    changed <- nf_mutate_feature(result, "stat2", "stat", function(v) v * 2),
+    "dropped x-backing"
+  )
+  expect_null(changed$manifest$extensions[["x-backing"]])
+
+  bad <- result
+  bad$manifest$extensions[["x-backing"]]$version <- "9.0.0"
+  bad$manifest$extensions[["x-backing"]]$feature <- NULL
+  errors <- nf_validate(bad)$errors
+  expect_true(any(grepl("x-backing.*version", errors)))
+  expect_true(any(grepl("x-backing.*'feature'", errors)))
+})
+
+test_that("relative paths between sibling and nested directories are computed", {
+  root <- tempfile("relpath-")
+  dir.create(file.path(root, "a", "b"), recursive = TRUE)
+  dir.create(file.path(root, "c"))
+  on.exit(unlink(root, recursive = TRUE))
+  file.create(file.path(root, "c", "m.yaml"))
+  expect_identical(neurotabs:::.nf_relative_path(file.path(root, "a", "b"), file.path(root, "c", "m.yaml")), "../../c/m.yaml")
+  expect_identical(neurotabs:::.nf_relative_path(file.path(root, "c"), file.path(root, "c", "m.yaml")), "m.yaml")
+})

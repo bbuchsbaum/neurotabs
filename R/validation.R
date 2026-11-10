@@ -234,6 +234,9 @@ nf_validate <- function(x, level = c("structural", "full"), .progress = FALSE) {
   if (!is.null(extensions[["x-masked-volume"]])) {
     errors <- c(errors, .validate_masked_volume_extension(x, extensions[["x-masked-volume"]]))
   }
+  if (!is.null(extensions[["x-backing"]])) {
+    errors <- c(errors, .validate_backing_extension(extensions[["x-backing"]]))
+  }
 
   errors
 }
